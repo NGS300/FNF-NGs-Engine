@@ -1,0 +1,29 @@
+{
+	"lineEnds": {
+		"leftCurly": "none",
+		"rightCurly": "both",
+		"emptyCurly": "break",
+		"objectLiteralCurly": {
+			"leftCurly": "after"
+		}
+	},
+	"sameLine": {
+		"ifElse": "same",
+		"doWhile": "same",
+		"tryBody": "next",
+		"tryCatch": "same"
+	},
+	"indentation": {
+		"character": "space",
+		"size": 4,
+		"trailingWhitespace": true
+	},
+	"whitespace": {
+		"beforeOpenCurly": "space"
+	},
+	"wrapping": {
+		"ifStatement": {
+			"defaultWrap": "noWrap"
+		}
+	}
+}
