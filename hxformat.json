@@ -1,6 +1,6 @@
 {
 	"lineEnds": {
-		"leftCurly": "none",
+		"leftCurly": "after",
 		"rightCurly": "both",
 		"emptyCurly": "break",
 		"objectLiteralCurly": {
@@ -8,22 +8,13 @@
 		}
 	},
 	"sameLine": {
-		"ifElse": "same",
-		"doWhile": "same",
+		"ifElse": "next",
+		"doWhile": "next",
 		"tryBody": "next",
-		"tryCatch": "same"
+		"tryCatch": "next"
 	},
 	"indentation": {
-		"character": "space",
-		"size": 4,
+		"character": "    ",
 		"trailingWhitespace": true
-	},
-	"whitespace": {
-		"beforeOpenCurly": "space"
-	},
-	"wrapping": {
-		"ifStatement": {
-			"defaultWrap": "noWrap"
-		}
 	}
 }
