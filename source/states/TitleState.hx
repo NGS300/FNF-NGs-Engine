@@ -1,5 +1,6 @@
 package states;
 
+import flixel.util.FlxGradient;
 import flixel.group.FlxGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxFrame;
@@ -8,6 +9,13 @@ import flixel.input.gamepad.FlxGamepad;
 import shaders.ColorSwap;
 import states.StoryMenuState;
 import states.MainMenuState;
+
+typedef LogoScale = {
+	var start: Float;
+	var bump: Float;
+	var target: Float;
+}
+
 
 class TitleState extends MusicBeatState {
 	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
@@ -18,7 +26,6 @@ class TitleState extends MusicBeatState {
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
 	var blackScreen:FlxSprite;
-	var credTextShit:Alphabet;
 	var ngSpr:FlxSprite;
 	
 	var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
@@ -61,9 +68,17 @@ class TitleState extends MusicBeatState {
 		#end
 	}
 
-	var logoBl:FlxSprite;
-	var titleText:FlxSprite;
+	var gradDown:FlxSprite;
+	var gradUp:FlxSprite;
+	var logoSpr:FlxSprite;
 	var swagShader:ColorSwap = null;
+	var scale:LogoScale = {
+		start: .34,
+		bump: .365,
+		target: 0
+	};
+	var titleText:FlxSprite;
+
 
 	function startIntro() {
 		persistentUpdate = true;
@@ -71,27 +86,62 @@ class TitleState extends MusicBeatState {
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 		Conductor.bpm = 102;
 
-		logoBl = new FlxSprite(logoPosition.x, logoPosition.y);
-		logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
-		logoBl.antialiasing = ClientPrefs.data.antialiasing;
+		gradDown = FlxGradient.createGradientFlxSprite(1880, 256, [0xFFFFFFFF, 0x00FFFFFF], 3);
+		gradDown.antialiasing = ClientPrefs.data.antialiasing;
+		gradDown.color = 0xFF680000;
+		gradDown.screenCenter(X);
+		gradDown.y = FlxG.height - gradDown.height;
+		gradDown.y += 60;
+		gradDown.flipY = true;
+		gradDown.alpha = .5;
+		add(gradDown);
+		FlxTween.color(gradDown, 2, 0xFFff0000, 0xFF680000, {
+			ease: FlxEase.quadInOut,
+			type: PINGPONG,
+		});
 
-		logoBl.animation.addByPrefix('bump', 'logo bumpin', 24, false);
-		logoBl.animation.play('bump');
-		logoBl.updateHitbox();
-		
+		gradUp = FlxGradient.createGradientFlxSprite(1880, 256, [0x00FFFFFF, 0xFFFFFFFF], 3);
+		gradUp.antialiasing = ClientPrefs.data.antialiasing;
+		gradUp.color = 0xFFFF0000;
+		gradUp.y -= 60;
+		gradUp.screenCenter(X);
+		gradUp.flipY = true;
+		gradUp.alpha = .3;
+		add(gradUp);
+		FlxTween.color(gradUp, 2, 0xFF680000, 0xFFff0000, {
+			ease: FlxEase.quadInOut,
+			type: PINGPONG,
+		});
+
+		var i = "titlemenu";
+		logoSpr = new FlxSprite().loadGraphic(Paths.image('$i/logo'));
+		logoSpr.scale.set(scale.start, scale.start);
+		logoSpr.updateHitbox();
+		logoSpr.centerOrigin();
+		logoSpr.screenCenter();
+		scale.target = scale.start;
 		if (ClientPrefs.data.shaders) {
 			swagShader = new ColorSwap();
-			logoBl.shader = swagShader.shader;
+			logoSpr.shader = swagShader.shader;
 		}
+		add(logoSpr);
+		FlxTween.angle(logoSpr, -6, 6, 2.5, {
+			ease: FlxEase.quadInOut,
+			type: PINGPONG,
+		});
 
 		var animFrames:Array<FlxFrame> = [];
-		titleText = new FlxSprite(enterPosition.x, enterPosition.y);
-		titleText.frames = Paths.getSparrowAtlas('titleEnter');
+		#if mobile
+		var isMobile = true;
+		#else
+		var isMobile = false;
+		#end
+		titleText = new FlxSprite((isMobile ? 60 : 122) + (flixel.math.FlxPoint.get().x / 2), 590);
+		titleText.frames = Paths.getSparrowAtlas('$i/titleEnter' + (!isMobile ? '' : '_mobile'));
 		@:privateAccess {
 			titleText.animation.findByPrefix(animFrames, "ENTER IDLE");
 			titleText.animation.findByPrefix(animFrames, "ENTER FREEZE");
 		}
-		
 		if (newTitle = animFrames.length > 0) {
 			titleText.animation.addByPrefix('idle', "ENTER IDLE", 24);
 			titleText.animation.addByPrefix('press', ClientPrefs.data.flashing ? "ENTER PRESSED" : "ENTER FREEZE", 24);
@@ -101,35 +151,25 @@ class TitleState extends MusicBeatState {
 		}
 		titleText.animation.play('idle');
 		titleText.updateHitbox();
+		add(titleText);
 
 		blackScreen = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
 		blackScreen.scale.set(FlxG.width, FlxG.height);
 		blackScreen.updateHitbox();
 		credGroup.add(blackScreen);
 
-		credTextShit = new Alphabet(0, 0, "", true);
-		credTextShit.screenCenter();
-		credTextShit.visible = false;
-
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
 		ngSpr.updateHitbox();
 		ngSpr.screenCenter(X);
 		ngSpr.antialiasing = ClientPrefs.data.antialiasing;
 
-		add(logoBl);
-		add(titleText);
 		add(credGroup);
 		add(ngSpr);
-		if (initialized)
-			skipIntro();
-		else
-			initialized = true;
+		initialized ? skipIntro() : initialized = true;
 	}
 
-	var logoPosition:FlxPoint = FlxPoint.get(-150, -100);
-	var enterPosition:FlxPoint = FlxPoint.get(100, 576);
 	function getIntroTextShit():Array<Array<String>> {
 		#if MODS_ALLOWED
 		var firstArray:Array<String> = Mods.mergeAllTextsNamed('data/introText.txt');
@@ -150,6 +190,9 @@ class TitleState extends MusicBeatState {
 	override function update(elapsed:Float) {
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
+
+		scale.target = FlxMath.lerp(scale.target, scale.start, 0.094);
+		logoSpr.scale.set(scale.target, scale.target);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 		#if mobile
@@ -173,35 +216,55 @@ class TitleState extends MusicBeatState {
 			if (titleTimer > 2) titleTimer -= 2;
 		}
 
-		if (initialized && !transitioning && skippedIntro) {
-			if (newTitle && !pressedEnter) {
-				var timer:Float = titleTimer;
-				if (timer >= 1)
-					timer = (-timer) + 2;
-				timer = FlxEase.quadInOut(timer);
+		if (initialized) {
+			if (!skippedIntro) {
+				if (pressedEnter)
+					skipIntro();
+			} else if (!transitioning) {
+				if (newTitle && !pressedEnter) {
+					var timer:Float = titleTimer;
+					if (timer >= 1)
+						timer = (-timer) + 2;
+					timer = FlxEase.quadInOut(timer);
 
-				titleText.color = FlxColor.interpolate(titleTextColors[0], titleTextColors[1], timer);
-				titleText.alpha = FlxMath.lerp(titleTextAlphas[0], titleTextAlphas[1], timer);
-			}
-			
-			if (pressedEnter) {
-				titleText.color = FlxColor.WHITE;
-				titleText.alpha = 1;
-				if (titleText != null) titleText.animation.play('press');
+					titleText.color = FlxColor.interpolate(titleTextColors[0], titleTextColors[1], timer);
+					titleText.alpha = FlxMath.lerp(titleTextAlphas[0], titleTextAlphas[1], timer);
+				}
+				
+				if (pressedEnter) {
+					titleText.color = FlxColor.WHITE;
+					titleText.alpha = 1;
+					if (titleText != null) titleText.animation.play('press');
 
-				FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
-				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+					FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
+					FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 
-				transitioning = true;
-				new FlxTimer().start(1, function(tmr:FlxTimer) {
-					MusicBeatState.switchState(new MainMenuState());
-					closedState = true;
-				});
+					transitioning = true;
+					FlxTween.tween(logoSpr, {x: logoSpr.x + 1000}, 2.8, {
+						ease: FlxEase.backInOut,
+						type: PERSIST,
+						onStart: function(twn:FlxTween) {
+							FlxTween.tween(titleText, {y: titleText.y + 400}, 3, {
+								ease: FlxEase.backInOut,
+								type: PERSIST,
+							});
+						},
+						onComplete: (_) -> {
+							changeState(MainMenuState);
+							closedState = true;
+						}
+					});
+					FlxTween.tween(gradDown, {y: gradDown.y + 500}, 3.2, {
+						ease: FlxEase.quartInOut,
+						type: PERSIST
+					});
+					FlxTween.tween(gradUp, {y: gradUp.y - 500}, 3.2, {
+						ease: FlxEase.quartInOut,
+						type: PERSIST
+					});
+				}
 			}
 		}
-
-		if (initialized && pressedEnter && !skippedIntro)
-			skipIntro();
 
 		if (swagShader != null) {
 			if (controls.UI_LEFT) swagShader.hue -= elapsed * 0.1;
@@ -243,9 +306,7 @@ class TitleState extends MusicBeatState {
 	public static var closedState:Bool = false;
 	override function beatHit() {
 		super.beatHit();
-
-		if (logoBl != null)
-			logoBl.animation.play('bump', true);
+		scale.target = scale.bump;
 
 		if (!closedState) {
 			sickBeats++;
@@ -281,7 +342,7 @@ class TitleState extends MusicBeatState {
 		if (!skippedIntro) {
 			remove(ngSpr);
 			remove(credGroup);
-			FlxG.camera.flash(FlxColor.WHITE, 4);
+			FlxG.camera.flash(FlxColor.WHITE, closedState ? 2.5 : 4);
 		}
 		skippedIntro = true;
 	}
