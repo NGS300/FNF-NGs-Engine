@@ -17,8 +17,7 @@ import objects.Bar;
 import states.editors.content.Prompt;
 import states.editors.content.PsychJsonPrinter;
 
-class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
-{
+class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent {
 	var character:Character;
 	var ghost:FlxSprite;
 	var animateGhost:FlxAnimate;
@@ -56,17 +55,14 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 	var selectedFormat:FlxTextFormat = new FlxTextFormat(FlxColor.LIME);
 
-	public function new(char:String = null, goToPlayState:Bool = true)
-	{
+	public function new(char:String = null, goToPlayState:Bool = true) {
 		this._char = char;
 		this._goToPlayState = goToPlayState;
-		if(this._char == null) this._char = Character.DEFAULT_CHARACTER;
-
+		if (this._char == null) this._char = Character.DEFAULT_CHARACTER;
 		super();
 	}
 
-	override function create()
-	{
+	override function create() {
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 

@@ -7,7 +7,6 @@ import flixel.tweens.FlxEase;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
-import lime.app.Application;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -21,10 +20,10 @@ enum MainMenuColumn {
 }
 
 class MainMenuState extends MusicBeatState {
-    public static var engineVersion:String = '0.1.0'; // This is also used for Discord RPC
     public static var curSelected:Int = 0;
     public static var curColumn:MainMenuColumn = LEFT;
     var allowMouse:Bool = true;
+    var camFollow:FlxObject;
 
     var menuItems:FlxTypedGroup<FlxSprite>;
     var rightUpItem:FlxSprite;
@@ -32,7 +31,6 @@ class MainMenuState extends MusicBeatState {
     var bg:FlxSprite;
     var intendedColor:Int;
 	var bgFlicker:FlxSprite;
-    var camFollow:FlxObject;
     var NORMAL_X:Int = 625;
     
     var optionShit = [
@@ -54,8 +52,7 @@ class MainMenuState extends MusicBeatState {
         #end
         Mods.loadTopMod();
 
-        #if DISCORD_ALLOWED
-        // Updating Discord Rich Presence
+        #if DISCORD_ALLOWED // Updating Discord Rich Presence
         DiscordClient.changePresence("In the Main menu", null);
         #end
 
@@ -87,7 +84,7 @@ class MainMenuState extends MusicBeatState {
         add(menuItems);
 
         for (num => option in optionShit) {
-            var item:FlxSprite = createMenuItem(option.name, (FlxG.width / 2) - NORMAL_X, (num * 140) + 90);
+            var item = createMenuItem(option.name, (FlxG.width / 2) - NORMAL_X, (num * 140) + 90);
             item.y += (4 - optionShit.length) * 70;
         }
 
@@ -101,14 +98,10 @@ class MainMenuState extends MusicBeatState {
             rightDownItem.x -= rightDownItem.width;
         }
 
-        var engineVer:FlxText = new FlxText(2, FlxG.height - 42, 0, "NGs Engine v" + engineVersion, 16);
+        var engineVer = new FlxText(2, FlxG.height - 22, 0, CoolUtil.engine.name + " v" + CoolUtil.engine.version, 16);
         engineVer.scrollFactor.set();
         engineVer.setFormat(Paths.font("fredoka_One.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         add(engineVer);
-        var fnfVer:FlxText = new FlxText(2, FlxG.height - 22, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 16);
-        fnfVer.scrollFactor.set();
-        fnfVer.setFormat(Paths.font("fredoka_One.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-        add(fnfVer);
         changeItem();
 
         #if ACHIEVEMENTS_ALLOWED
@@ -123,17 +116,25 @@ class MainMenuState extends MusicBeatState {
         #end
 
         #if CHECK_FOR_UPDATES
-        if (showOutdatedWarning && ClientPrefs.data.checkForUpdates && substates.OutdatedSubState.updateVersion != engineVersion) {
-            persistentUpdate = false;
+        if (showOutdatedWarning && ClientPrefs.data.checkForUpdates) {
             showOutdatedWarning = false;
-            openSubState(new substates.OutdatedSubState());
+
+            CoolUtil.checkForUpdates(function(latest:String) {
+                substates.OutdatedSubState.updateVersion = latest;
+
+                if (CoolUtil.compareValues(latest, CoolUtil.engine.version)) {
+                    persistentUpdate = false;
+                    openSubState(new substates.OutdatedSubState());
+                } else
+                    trace('No updates available.');
+            }, "https://raw.githubusercontent.com/NGS300/FNF-NGs-Engine/main/source/states/TitleState.hx");
         }
         #end
         FlxG.camera.follow(camFollow, null, 0.15);
     }
 
     function createMenuItem(name:String, x:Float, y:Float):FlxSprite {
-        var menuItem:FlxSprite = new FlxSprite(x, y);
+        var menuItem = new FlxSprite(x, y);
         menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_$name');
         menuItem.animation.addByPrefix('idle', '$name idle', 24, true);
         menuItem.animation.addByPrefix('selected', '$name selected', 24, true);

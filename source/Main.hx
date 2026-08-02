@@ -7,25 +7,12 @@ import android.content.Context;
 import debug.FPSCounter;
 import debug.MemoryCounter;
 
-import flixel.graphics.FlxGraphic;
-import flixel.FlxGame;
-import flixel.FlxState;
-import haxe.io.Path;
-import openfl.Assets;
 import openfl.Lib;
 import openfl.display.Sprite;
-import openfl.events.Event;
-import openfl.display.StageScaleMode;
-import lime.app.Application;
-import states.TitleState;
 
 #if HSCRIPT_ALLOWED
 import crowplexus.iris.Iris;
 import psychlua.HScript.HScriptInfos;
-#end
-
-#if (linux || mac)
-import lime.graphics.Image;
 #end
 
 #if desktop
@@ -39,8 +26,6 @@ import haxe.CallStack;
 import haxe.io.Path;
 #end
 
-import backend.Highscore;
-
 // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
 @:cppInclude('./external/gamemode_client.h')
@@ -51,7 +36,7 @@ class Main extends Sprite {
 	public static final game = {
 		width: 1280, // WINDOW width
 		height: 720, // WINDOW height
-		initialState: TitleState, // initial game state
+		initialState: states.TitleState, // initial game state
 		framerate: 60, // default framerate
 		skipSplash: true, // if the default flixel splash screen should be skipped
 		startFullscreen: false // if the game should start at fullscreen mode
@@ -88,7 +73,7 @@ class Main extends Sprite {
 		Mods.loadTopMod();
 
 		FlxG.save.bind('funkin', CoolUtil.getSavePath());
-		Highscore.load();
+		backend.Highscore.load();
 
 		#if HSCRIPT_ALLOWED
 		Iris.warn = function(x, ?pos:haxe.PosInfos) {
@@ -148,7 +133,10 @@ class Main extends Sprite {
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
-		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+		var game = new flixel.FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
+		@:privateAccess
+		game._customSoundTray = backend.SoundTray;
+		addChild(game);
 
 		#if !mobile
 		var data = ClientPrefs.data.showFPS;
@@ -157,7 +145,7 @@ class Main extends Sprite {
 		ramVar = new MemoryCounter(2);
 		addChild(ramVar);
 		Lib.current.stage.align = "tl";
-		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		Lib.current.stage.scaleMode = openfl.display.StageScaleMode.NO_SCALE;
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = (data == 0 ? false : true);
 
@@ -166,7 +154,7 @@ class Main extends Sprite {
 		#end
 
 		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
-		var icon = Image.fromFile("icon.png");
+		var icon = lime.graphics.Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);
 		#end
 
@@ -243,7 +231,7 @@ class Main extends Sprite {
 		Sys.println(errMsg);
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
-		Application.current.window.alert(errMsg, "Error!");
+		lime.app.Application.current.window.alert(errMsg, "Error!");
 		#if DISCORD_ALLOWED
 		DiscordClient.shutdown();
 		#end

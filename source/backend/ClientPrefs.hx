@@ -1,10 +1,15 @@
 package backend;
 
+import states.TitleState;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
-import states.TitleState;
+@:structInit class SystemVariables {
+	public var volume:Float = 0.6;
+	public var muted:Bool = false;
+	public var fullscreen:Bool = false;
+}
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
@@ -12,7 +17,7 @@ import states.TitleState;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
 	public var showFPS:Int = 2;
-	public var flashing:Bool = true;
+	public var flashing:Null<Bool> = null;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
 	public var noteSkin:String = 'Default';
@@ -82,6 +87,7 @@ import states.TitleState;
 class ClientPrefs {
 	public static var data:SaveVariables = {};
 	public static var defaultData:SaveVariables = {};
+	public static var sysData:SystemVariables = {};
 
 	//Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
@@ -151,28 +157,58 @@ class ClientPrefs {
 		defaultButtons = gamepadBinds.copy();
 	}
 
-	public static function saveSettings() {
-		for (key in Reflect.fields(data))
-			Reflect.setField(FlxG.save.data, key, Reflect.field(data, key));
+	public static function saveSys() {
+		var system = new FlxSave();
+		system.bind('system_v1', CoolUtil.getSavePath());
+		for (key in Reflect.fields(sysData))
+			Reflect.setField(system.data, key, Reflect.field(sysData, key));
+		system.flush();
+	}
 
-		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
+	public static function loadSys() {
+		var system = new FlxSave();
+		system.bind('system_v1', CoolUtil.getSavePath());
+		for (key in Reflect.fields(sysData))
+			if (Reflect.hasField(system.data, key))
+				Reflect.setField(sysData, key, Reflect.field(system.data, key));
+
+		FlxG.sound.volume = sysData.volume;
+		FlxG.sound.muted = sysData.muted;
+		if (sysData.fullscreen)
+			FlxG.fullscreen = sysData.fullscreen;
+	}
+
+	public static function saveSettings() {
+		// Just so it doesn't break things for people without binds. 
 		FlxG.save.flush();
 
-		//Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
-		var save:FlxSave = new FlxSave();
-		save.bind('controls_v3', CoolUtil.getSavePath());
-		save.data.keyboard = keyBinds;
-		save.data.gamepad = gamepadBinds;
-		save.flush();
+		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
+
+		var settings = new FlxSave();
+		settings.bind('settings_v4', CoolUtil.getSavePath());
+		for (key in Reflect.fields(data))
+			Reflect.setField(settings.data, key, Reflect.field(data, key));
+		settings.flush();
+		//trace("SAVE:" + settings.data);
+
+		var controls = new FlxSave();
+		controls.bind('controls_v3', CoolUtil.getSavePath());
+		controls.data.keyboard = keyBinds;
+		controls.data.gamepad = gamepadBinds;
+		controls.flush();
 		FlxG.log.add("Settings saved!");
 	}
 
 	public static function loadPrefs() {
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
+		var settings = new FlxSave();
+		settings.bind('settings_v4', CoolUtil.getSavePath());
 		for (key in Reflect.fields(data))
-			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
-				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
+			if (key != 'gameplaySettings' && Reflect.hasField(settings.data, key))
+				Reflect.setField(data, key, Reflect.field(settings.data, key));
+		settings.flush();
+		//trace("LOAD:" + settings.data);
 
 		if (Main.fpsVar != null) {
 			Main.fpsVar.visible = (data.showFPS == 0 ? false : true);
@@ -206,25 +242,24 @@ class ClientPrefs {
 		}
 		
 		// flixel automatically saves your volume!
-		if (FlxG.save.data.volume != null)
+		/*if (FlxG.save.data.volume != null)
 			FlxG.sound.volume = FlxG.save.data.volume;
 		if (FlxG.save.data.mute != null)
-			FlxG.sound.muted = FlxG.save.data.mute;
+			FlxG.sound.muted = FlxG.save.data.mute;*/
 
 		#if DISCORD_ALLOWED DiscordClient.check(); #end
 
-		// controls on a separate save file
-		var save:FlxSave = new FlxSave();
-		save.bind('controls_v3', CoolUtil.getSavePath());
-		if (save != null) {
-			if (save.data.keyboard != null) {
-				var loadedControls:Map<String, Array<FlxKey>> = save.data.keyboard;
+		var controls = new FlxSave();
+		controls.bind('controls_v3', CoolUtil.getSavePath());
+		if (controls != null) {
+			if (controls.data.keyboard != null) {
+				var loadedControls:Map<String, Array<FlxKey>> = controls.data.keyboard;
 				for (control => keys in loadedControls)
 					if (keyBinds.exists(control)) keyBinds.set(control, keys);
 			}
 
-			if (save.data.gamepad != null) {
-				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
+			if (controls.data.gamepad != null) {
+				var loadedControls:Map<String, Array<FlxGamepadInputID>> = controls.data.gamepad;
 				for (control => keys in loadedControls)
 					if (gamepadBinds.exists(control)) gamepadBinds.set(control, keys);
 			}

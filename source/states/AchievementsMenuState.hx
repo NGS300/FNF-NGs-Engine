@@ -316,7 +316,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 				var option:Dynamic = state.options[state.curSelected];
 
 				Achievements.variables.remove(option.name);
-				Achievements.achievementsUnlocked.remove(option.name);
+				Achievements.unlocked.remove(option.name);
 				option.unlocked = false;
 				option.curProgress = 0;
 				option.name = state.nameText.text = '???';

@@ -1,5 +1,6 @@
 package backend;
 
+import flixel.util.FlxSave;
 #if ACHIEVEMENTS_ALLOWED
 import objects.AchievementPopup;
 import haxe.Exception;
@@ -51,14 +52,12 @@ class Achievements {
 		#if BASE_GAME_FILES
 		createAchievement('debugger',				{name: "Debugger", description: "Beat the \"Test\" Stage from the Chart Editor.", hidden: true});
 		#end
-
-		//dont delete this thing below
-		_originalLength = _sortID + 1;
+		_originalLength = _sortID + 1; //dont delete this thing below
 	}
 
 	public static var achievements:Map<String, Achievement> = new Map<String, Achievement>();
 	public static var variables:Map<String, Float> = [];
-	public static var achievementsUnlocked:Array<String> = [];
+	public static var unlocked:Array<String> = [];
 	private static var _firstLoad:Bool = true;
 
 	public static function get(name:String):Achievement
@@ -66,27 +65,35 @@ class Achievements {
 	public static function exists(name:String):Bool
 		return achievements.exists(name);
 
+	public static function save():Void {
+		var achievements = new FlxSave();
+		achievements.bind('achievements_v2', CoolUtil.getSavePath());
+		achievements.data.unlocked = unlocked;
+		achievements.data.achievementsVariables = variables;
+		achievements.flush();
+		//trace("SAVE:" + achievements.data);
+	}
+
 	public static function load():Void {
 		if (!_firstLoad) return;
 
 		if (_originalLength < 0) init();
 
-		if (FlxG.save.data != null) {
-			if (FlxG.save.data.achievementsUnlocked != null)
-				achievementsUnlocked = FlxG.save.data.achievementsUnlocked;
+		var achievements:FlxSave = new FlxSave();
+		achievements.bind('achievements_v2', CoolUtil.getSavePath());
+		if (achievements != null) {
+			if (achievements.data.unlocked != null)
+				unlocked = achievements.data.unlocked;
 
-			var savedMap:Map<String, Float> = cast FlxG.save.data.achievementsVariables;
+			var savedMap:Map<String, Float> = cast achievements.data.achievementsVariables;
 			if (savedMap != null) {
 				for (key => value in savedMap)
 					variables.set(key, value);
 			}
 			_firstLoad = false;
 		}
-	}
-
-	public static function save():Void {
-		FlxG.save.data.achievementsUnlocked = achievementsUnlocked;
-		FlxG.save.data.achievementsVariables = variables;
+		achievements.flush();
+		//trace("LOAD:" + achievements.data);
 	}
 	
 	public static function getScore(name:String):Float
@@ -106,7 +113,7 @@ class Achievements {
 			var achievement:Achievement = achievements.get(name);
 			if (achievement.maxScore < 1) throw new Exception('Achievement has score disabled or is incorrectly configured: $name');
 
-			if (achievementsUnlocked.contains(name)) return achievement.maxScore;
+			if (unlocked.contains(name)) return achievement.maxScore;
 
 			var val = addOrSet;
 			switch (mode) {
@@ -139,7 +146,7 @@ class Achievements {
 		if (Achievements.isUnlocked(name)) return null;
 
 		trace('Completed achievement "$name"');
-		achievementsUnlocked.push(name);
+		unlocked.push(name);
 
 		// earrape prevention
 		var time:Int = openfl.Lib.getTimer();
@@ -156,7 +163,7 @@ class Achievements {
 	}
 
 	inline public static function isUnlocked(name:String)
-		return achievementsUnlocked.contains(name);
+		return unlocked.contains(name);
 
 	@:allow(objects.AchievementPopup)
 	private static var _popups:Array<AchievementPopup> = [];

@@ -1,14 +1,11 @@
 package states;
 
-import flixel.util.FlxGradient;
+import shaders.ColorSwap;
 import flixel.group.FlxGroup;
+import flixel.util.FlxGradient;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.frames.FlxFrame;
 import flixel.input.gamepad.FlxGamepad;
-
-import shaders.ColorSwap;
-import states.StoryMenuState;
-import states.MainMenuState;
 
 typedef LogoScale = {
 	var start: Float;
@@ -16,12 +13,15 @@ typedef LogoScale = {
 	var target: Float;
 }
 
-
 class TitleState extends MusicBeatState {
 	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
 	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
 	public static var initialized:Bool = false;
+	public static var engineData = {
+		name: "NGs Engine",
+		version: "0.0.3"
+	}
 
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
@@ -38,20 +38,19 @@ class TitleState extends MusicBeatState {
 		Paths.clearUnusedMemory();
 
 		if (!initialized) {
+			ClientPrefs.loadSys();
 			ClientPrefs.loadPrefs();
 			Language.reloadPhrases();
 		}
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		if (!initialized) {
-			if (FlxG.save.data != null && FlxG.save.data.fullscreen)
-				FlxG.fullscreen = FlxG.save.data.fullscreen;
 			persistentUpdate = true;
 			persistentDraw = true;
 		}
 
 		if (FlxG.save.data.weekCompleted != null)
-			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
+			states.StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 
 		FlxG.mouse.visible = false;
 		#if FREEPLAY
@@ -59,7 +58,7 @@ class TitleState extends MusicBeatState {
 		#elseif CHARTING
 		MusicBeatState.switchState(new ChartingState());
 		#else
-		if (FlxG.save.data.flashing == null && !FlashingState.leftState) {
+		if (ClientPrefs.data.flashing == null && !FlashingState.leftState) {
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 			MusicBeatState.switchState(new FlashingState());
@@ -250,7 +249,7 @@ class TitleState extends MusicBeatState {
 							});
 						},
 						onComplete: (_) -> {
-							changeState(MainMenuState);
+							changeState(states.MainMenuState);
 							closedState = true;
 						}
 					});
