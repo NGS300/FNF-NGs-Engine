@@ -3,13 +3,11 @@ package backend;
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
-import flixel.group.FlxGroup;
 
 import objects.Note;
 import objects.Character;
 
-enum Countdown
-{
+enum Countdown {
 	THREE;
 	TWO;
 	ONE;
@@ -17,8 +15,7 @@ enum Countdown
 	START;
 }
 
-class BaseStage extends FlxBasic
-{
+class BaseStage extends FlxBasic {
 	private var game(get, never):Dynamic;
 	public var onPlayState(get, never):Bool;
 
@@ -47,15 +44,11 @@ class BaseStage extends FlxBasic
 	public var defaultCamZoom(get, set):Float;
 	public var camFollow(get, never):FlxObject;
 
-	public function new()
-	{
-		if(game == null)
-		{
+	public function new() {
+		if (game == null) {
 			FlxG.log.error('Invalid state for the stage added!');
 			destroy();
-		}
-		else 
-		{
+		} else  {
 			game.stages.push(this);
 			super();
 			create();
@@ -102,11 +95,9 @@ class BaseStage extends FlxBasic
 	public function addBehindGF(obj:FlxBasic) return insert(members.indexOf(game.gfGroup), obj);
 	public function addBehindBF(obj:FlxBasic) return insert(members.indexOf(game.boyfriendGroup), obj);
 	public function addBehindDad(obj:FlxBasic) return insert(members.indexOf(game.dadGroup), obj);
-	public function setDefaultGF(name:String) //Fix for the Chart Editor on Base Game stages
-	{
+	public function setDefaultGF(name:String) { //Fix for the Chart Editor on Base Game stages
 		var gfVersion:String = PlayState.SONG.gfVersion;
-		if(gfVersion == null || gfVersion.length < 1)
-		{
+		if (gfVersion == null || gfVersion.length < 1) {
 			gfVersion = name;
 			PlayState.SONG.gfVersion = gfVersion;
 		}
@@ -116,35 +107,31 @@ class BaseStage extends FlxBasic
 		return game.variables.get(name);
 
 	//start/end callback functions
-	public function setStartCallback(myfn:Void->Void)
-	{
-		if(!onPlayState) return;
+	public function setStartCallback(myfn:Void->Void) {
+		if (!onPlayState) return;
 		PlayState.instance.startCallback = myfn;
 	}
-	public function setEndCallback(myfn:Void->Void)
-	{
-		if(!onPlayState) return;
+	public function setEndCallback(myfn:Void->Void) {
+		if (!onPlayState) return;
 		PlayState.instance.endCallback = myfn;
 	}
 
 	// overrides
-	function startCountdown() if(onPlayState) return PlayState.instance.startCountdown(); else return false;
-	function endSong() if(onPlayState)return PlayState.instance.endSong(); else return false;
-	function moveCameraSection() if(onPlayState) PlayState.instance.moveCameraSection();
-	function moveCamera(isDad:Bool) if(onPlayState) PlayState.instance.moveCamera(isDad);
+	function startCountdown() if (onPlayState) return PlayState.instance.startCountdown(); else return false;
+	function endSong() if (onPlayState) return PlayState.instance.endSong(); else return false;
+	function moveCameraSection() if (onPlayState) PlayState.instance.moveCameraSection();
+	function moveCamera(isDad:Bool) if (onPlayState) PlayState.instance.moveCamera(isDad);
 	inline private function get_paused() return game.paused;
 	inline private function get_songName() return game.songName;
 	inline private function get_isStoryMode() return PlayState.isStoryMode;
 	inline private function get_seenCutscene() return PlayState.seenCutscene;
 	inline private function get_inCutscene() return game.inCutscene;
-	inline private function set_inCutscene(value:Bool)
-	{
+	inline private function set_inCutscene(value:Bool) {
 		game.inCutscene = value;
 		return value;
 	}
 	inline private function get_canPause() return game.canPause;
-	inline private function set_canPause(value:Bool)
-	{
+	inline private function set_canPause(value:Bool) {
 		game.canPause = value;
 		return value;
 	}
@@ -161,18 +148,14 @@ class BaseStage extends FlxBasic
 	inline private function get_dadGroup():FlxSpriteGroup return game.dadGroup;
 	inline private function get_gfGroup():FlxSpriteGroup return game.gfGroup;
 
-	inline private function get_unspawnNotes():Array<Note>
-	{
-		return cast game.unspawnNotes;
-	}
+	inline private function get_unspawnNotes():Array<Note> return cast game.unspawnNotes;
 	
 	inline private function get_camGame():FlxCamera return game.camGame;
 	inline private function get_camHUD():FlxCamera return game.camHUD;
 	inline private function get_camOther():FlxCamera return game.camOther;
 
 	inline private function get_defaultCamZoom():Float return game.defaultCamZoom;
-	inline private function set_defaultCamZoom(value:Float):Float
-	{
+	inline private function set_defaultCamZoom(value:Float):Float {
 		game.defaultCamZoom = value;
 		return game.defaultCamZoom;
 	}

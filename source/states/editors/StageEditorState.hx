@@ -1033,32 +1033,27 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			}
 
 			destroySubStates = true;
-			openSubState(new PreloadListSubState(function(newSave:Map<String, LoadFilters>)
-			{
+			openSubState(new PreloadListSubState(function(newSave:Map<String, LoadFilters>) {
 				var len:Int = 0;
 				for (name in newSave.keys())
 					len++;
 
 				stageJson.preload = {};
 				for (key => value in newSave)
-				{
 					Reflect.setField(stageJson.preload, key, value);
-				}
 				unsavedProgress = true;
 				showOutput('Saved new Preload List with $len files/folders!');
 			}, lockedList, currentMap));
 		});
 
-		function setMetaData(data:String, char:String)
-		{
+		function setMetaData(data:String, char:String) {
 			if(stageJson._editorMeta == null) stageJson._editorMeta = {dad: 'dad', gf: 'gf', boyfriend: 'bf'};
 			Reflect.setField(stageJson._editorMeta, data, char);
 		}
 
 		objY += 60;
-		oppDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String)
-		{
-			if(selected == null || selected.length < 1) return;
+		oppDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String) {
+			if (selected == null || selected.length < 1) return;
 			dad.changeCharacter(selected);
 			setMetaData('dad', selected);
 			repositionDad();
@@ -1066,9 +1061,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		oppDropdown.selectedLabel = dad.curCharacter;
 
 		objY += 60;
-		gfDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String)
-		{
-			if(selected == null || selected.length < 1) return;
+		gfDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String) {
+			if (selected == null || selected.length < 1) return;
 			gf.changeCharacter(selected);
 			setMetaData('gf', selected);
 			repositionGirlfriend();
@@ -1076,9 +1070,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		gfDropdown.selectedLabel = gf.curCharacter;
 
 		objY += 60;
-		plDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String)
-		{
-			if(selected == null || selected.length < 1) return;
+		plDropdown = new PsychUIDropDownMenu(objX, objY, characterList, function(sel:Int, selected:String) {
+			if (selected == null || selected.length < 1) return;
 			boyfriend.changeCharacter(selected);
 			setMetaData('boyfriend', selected);
 			repositionBoyfriend();
@@ -1095,11 +1088,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	}
 
 	var stageDropDown:PsychUIDropDownMenu;
-	function addStageTab()
-	{
+	function addStageTab() {
 		var tab_group = UI_stagebox.getTab('Stage').menu;
-		var reloadStage:PsychUIButton = new PsychUIButton(140, 10, 'Reload', function()
-		{
+		var reloadStage:PsychUIButton = new PsychUIButton(140, 10, 'Reload', function() {
 			#if DISCORD_ALLOWED
 			DiscordClient.changePresence('Stage Editor', 'Stage: ' + lastLoadedStage);
 			#end
@@ -1111,8 +1102,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			reloadStageDropDown();
 		});
 
-		var dummyStage:PsychUIButton = new PsychUIButton(140, 40, 'Load Template', function()
-		{
+		var dummyStage:PsychUIButton = new PsychUIButton(140, 40, 'Load Template', function() {
 			#if DISCORD_ALLOWED
 			DiscordClient.changePresence('Stage Editor', 'New Stage');
 			#end

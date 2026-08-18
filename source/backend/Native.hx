@@ -1,10 +1,8 @@
 package backend;
 
-import lime.app.Application;
-import lime.system.Display;
 import lime.system.System;
-
-import flixel.util.FlxColor;
+import lime.system.Display;
+import lime.app.Application;
 
 #if (cpp && windows)
 @:buildXml('
@@ -36,9 +34,8 @@ BOOL CALLBACK findByPID(HWND handle, LPARAM lParam) {
 	DWORD curPID = 0;
 
 	GetWindowThreadProcessId(handle, &curPID);
-	if (targetPID != curPID || GetWindow(handle, GW_OWNER) != (HWND)0 || !IsWindowVisible(handle)) {
+	if (targetPID != curPID || GetWindow(handle, GW_OWNER) != (HWND)0 || !IsWindowVisible(handle))
 		return TRUE;
-	}
 
 	((HandleData*)lParam)->handle = handle;
 	return FALSE;
@@ -55,15 +52,11 @@ void getHandle() {
 }
 ')
 #end
-class Native
-{
+class Native {
 	public static function __init__():Void
-	{
 		registerDPIAware();
-	}
 
-	public static function registerDPIAware():Void
-	{
+	public static function registerDPIAware():Void {
 		#if (cpp && windows)
 		// DPI Scaling fix for windows 
 		// this shouldn't be needed for other systems
@@ -84,19 +77,16 @@ class Native
 	}
 
 	private static var fixedScaling:Bool = false;
-	public static function fixScaling():Void
-	{
+	public static function fixScaling():Void {
 		if (fixedScaling) return;
 		fixedScaling = true;
 
 		#if (cpp && windows)
 		final display:Null<Display> = System.getDisplay(0);
-		if (display != null)
-		{
+		if (display != null) {
 			final dpiScale:Float = display.dpi / 96;
 			@:privateAccess Application.current.window.width = Std.int(Main.game.width * dpiScale);
 			@:privateAccess Application.current.window.height = Std.int(Main.game.height * dpiScale);
-
 			Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) / 2);
 			Application.current.window.y = Std.int((Application.current.window.display.bounds.height - Application.current.window.height) / 2);
 		}

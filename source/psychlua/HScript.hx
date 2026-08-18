@@ -45,7 +45,7 @@ class HScript extends Iris {
 			trace('initializing haxe interp for: ${parent.scriptName}');
 			try {
 				parent.hscript = new HScript(parent, code, varsToBring);
-			} catch(e:IrisError) {
+			} catch (e:IrisError) {
 				var pos:HScriptInfos = cast {fileName: parent.scriptName, isLua: true};
 				if(parent.lastCalledFunction != '') pos.funcName = parent.lastCalledFunction;
 				Iris.error(Printer.errorToString(e, false), pos);
@@ -58,10 +58,10 @@ class HScript extends Iris {
 				hs.parse(true);
 				var ret:Dynamic = hs.execute();
 				hs.returnValue = ret;
-			} catch(e:IrisError) {
+			} catch (e:IrisError) {
 				var pos:HScriptInfos = cast hs.interp.posInfos();
 				pos.isLua = true;
-				if(parent.lastCalledFunction != '') pos.funcName = parent.lastCalledFunction;
+				if (parent.lastCalledFunction != '') pos.funcName = parent.lastCalledFunction;
 				Iris.error(Printer.errorToString(e, false), pos);
 				hs.returnValue = null;
 			}
@@ -114,7 +114,7 @@ class HScript extends Iris {
 			try {
 				var ret:Dynamic = execute();
 				returnValue = ret;
-			} catch(e:IrisError) {
+			} catch (e:IrisError) {
 				returnValue = null;
 				this.destroy();
 				throw e;
@@ -127,6 +127,7 @@ class HScript extends Iris {
 		super.preset();
 
 		// Some very commonly used classes
+		set('BGSprite', BGSprite);
 		set('Type', Type);
 		#if sys
 		set('File', File);
@@ -135,6 +136,8 @@ class HScript extends Iris {
 		set('FlxG', flixel.FlxG);
 		set('FlxMath', flixel.math.FlxMath);
 		set('FlxSprite', flixel.FlxSprite);
+		set('FlxSpriteGroup', flixel.group.FlxSpriteGroup);
+		set('FlxTypedGroup', flixel.group.FlxGroup.FlxTypedGroup);
 		set('FlxText', flixel.text.FlxText);
 		set('FlxCamera', flixel.FlxCamera);
 		set('PsychCamera', backend.PsychCamera);
@@ -208,37 +211,32 @@ class HScript extends Iris {
 		set('gamepadAnalogX', function(id:Int, ?leftStick:Bool = true) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null) return 0.0;
-
 			return controller.getXAxis(leftStick ? LEFT_ANALOG_STICK : RIGHT_ANALOG_STICK);
 		});
 		set('gamepadAnalogY', function(id:Int, ?leftStick:Bool = true) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null) return 0.0;
-
 			return controller.getYAxis(leftStick ? LEFT_ANALOG_STICK : RIGHT_ANALOG_STICK);
 		});
 		set('gamepadJustPressed', function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null) return false;
-
 			return Reflect.getProperty(controller.justPressed, name) == true;
 		});
 		set('gamepadPressed', function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null) return false;
-
 			return Reflect.getProperty(controller.pressed, name) == true;
 		});
 		set('gamepadReleased', function(id:Int, name:String) {
 			var controller = FlxG.gamepads.getByID(id);
 			if (controller == null) return false;
-
 			return Reflect.getProperty(controller.justReleased, name) == true;
 		});
 
 		set('keyJustPressed', function(name:String = '') {
 			name = name.toLowerCase();
-			switch(name) {
+			switch (name) {
 				case 'left': return Controls.instance.NOTE_LEFT_P;
 				case 'down': return Controls.instance.NOTE_DOWN_P;
 				case 'up': return Controls.instance.NOTE_UP_P;
@@ -249,7 +247,7 @@ class HScript extends Iris {
 		});
 		set('keyPressed', function(name:String = '') {
 			name = name.toLowerCase();
-			switch(name) {
+			switch (name) {
 				case 'left': return Controls.instance.NOTE_LEFT;
 				case 'down': return Controls.instance.NOTE_DOWN;
 				case 'up': return Controls.instance.NOTE_UP;
@@ -260,7 +258,7 @@ class HScript extends Iris {
 		});
 		set('keyReleased', function(name:String = '') {
 			name = name.toLowerCase();
-			switch(name) {
+			switch (name) {
 				case 'left': return Controls.instance.NOTE_LEFT_R;
 				case 'down': return Controls.instance.NOTE_DOWN_R;
 				case 'up': return Controls.instance.NOTE_UP_R;
@@ -275,17 +273,15 @@ class HScript extends Iris {
 		#if LUA_ALLOWED
 		set('createGlobalCallback', function(name:String, func:Dynamic) {
 			for (script in PlayState.instance.luaArray)
-				if(script != null && script.lua != null && !script.closed)
+				if (script != null && script.lua != null && !script.closed)
 					Lua_helper.add_callback(script.lua, name, func);
-
 			FunkinLua.customFunctions.set(name, func);
 		});
 
 		// this one was tested
 		set('createCallback', function(name:String, func:Dynamic, ?funk:FunkinLua = null) {
-			if(funk == null) funk = parentLua;
-			
-			if(funk != null) funk.addLocalCallback(name, func);
+			if (funk == null) funk = parentLua;
+			if (funk != null) funk.addLocalCallback(name, func);
 			else Iris.error('createCallback ($name): 3rd argument is null', this.interp.posInfos());
 		});
 		#end
@@ -293,12 +289,10 @@ class HScript extends Iris {
 		set('addHaxeLibrary', function(libName:String, ?libPackage:String = '') {
 			try {
 				var str:String = '';
-				if(libPackage.length > 0)
+				if (libPackage.length > 0)
 					str = libPackage + '.';
-
 				set(libName, Type.resolveClass(str + libName));
-			}
-			catch (e:IrisError)
+			} catch (e:IrisError)
 				Iris.error(Printer.errorToString(e, false), this.interp.posInfos());
 		});
 		#if LUA_ALLOWED
@@ -391,7 +385,7 @@ class HScript extends Iris {
 			var func:Dynamic = interp.variables.get(funcToRun); // function signature
 			final ret = Reflect.callMethod(null, func, args ?? []);
 			return {funName: funcToRun, signature: func, returnValue: ret};
-		} catch(e:IrisError) {
+		} catch (e:IrisError) {
 			var pos:HScriptInfos = cast this.interp.posInfos();
 			pos.funcName = funcToRun;
 			#if LUA_ALLOWED
@@ -426,7 +420,6 @@ class HScript extends Iris {
 			for (key in Reflect.fields(varsToBring))
 				if (exists(key.trim()))
 					interp.variables.remove(key.trim());
-
 		if (values != null) {
 			for (key in Reflect.fields(values)) {
 				key = key.trim();
@@ -528,7 +521,6 @@ class CustomInterp extends crowplexus.hscript.Interp {
 			var v = Reflect.getProperty(parentInstance, id);
 			return v;
 		}
-
 		error(EUnknownVariable(id));
 		return null;
 	}

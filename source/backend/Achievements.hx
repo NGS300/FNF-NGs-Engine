@@ -283,6 +283,19 @@ class Achievements {
 			}
 			return addScore(name, value, saveIfNotUnlocked);
 		});
+		Lua_helper.add_callback(lua, "addAchievement", function(save:String, name:String, description:String, ?hidden:Bool = false, ?maxScore:Float = 0, ?maxDecimals:Int = 0):Bool {
+			if (Achievements.exists(save))
+				return false;
+
+			Achievements.createAchievement(save, {
+				name: name,
+				description: description,
+				hidden: hidden,
+				maxScore: maxScore,
+				maxDecimals: maxDecimals
+			});
+			return true;
+		});
 		Lua_helper.add_callback(lua, "unlockAchievement", function(name:String):Dynamic {
 			if (!achievements.exists(name)) {
 				FunkinLua.luaTrace('unlockAchievement: Couldnt find achievement: $name', false, false, FlxColor.RED);
@@ -296,6 +309,20 @@ class Achievements {
 				return null;
 			}
 			return isUnlocked(name);
+		});
+		Lua_helper.add_callback(lua, "removeAchievement", function(name:String, ?deleteSave:Bool = true):Bool {
+			if (!achievements.exists(name)) {
+				FunkinLua.luaTrace('removeAchievement: Couldnt find achievement: $name', false, false, FlxColor.RED);
+				return false;
+			}
+			achievements.remove(name);
+
+			if (deleteSave) {
+				variables.remove(name);
+				unlocked.remove(name);
+				Achievements.save();
+			}
+			return true;
 		});
 		Lua_helper.add_callback(lua, "achievementExists", function(name:String) return achievements.exists(name));
 	}

@@ -1,20 +1,22 @@
 package options;
 
+import objects.AttachedSprite;
 import backend.InputFormatter;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
-import objects.AttachedSprite;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.input.gamepad.FlxGamepadInputID;
 
+//import openfl.Lib;
+//import openfl.events.KeyboardEvent;
+
 class ControlsSubState extends MusicBeatSubstate {
 	var curSelected:Int = 0;
 	var curAlt:Bool = false;
 
-	//Show on gamepad - Display name - Save file key - Rebind display name
-	var options:Array<Dynamic> = [
+	var options:Array<Dynamic> = [ //Show on gamepad - Display name - Save file key - Rebind display name
 		[true, 'NOTES'],
 		[true, 'Left', 'note_left', 'Note Left'],
 		[true, 'Down', 'note_down', 'Note Down'],
@@ -56,10 +58,25 @@ class ControlsSubState extends MusicBeatSubstate {
 	var keyboardColor:FlxColor = 0xff7192fd;
 	var onKeyboardMode:Bool = true;
 	var controllerSpr:FlxSprite;
-	
+
+	// test input key shit
+	/*override function destroy() {
+		Lib.current.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDownTest);
+		super.destroy();
+	}
+
+	function onKeyDownTest(e:KeyboardEvent):Void {
+		trace("----------------");
+		trace("keyCode: " + e.keyCode);
+		trace("charCode: " + e.charCode);
+		trace("ctrlKey: " + e.ctrlKey);
+		trace("altKey: " + e.altKey);
+		trace("shiftKey: " + e.shiftKey);
+	} */
+		
 	public function new() {
 		super();
-
+		//Lib.current.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDownTest);
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Controls Menu", null);
 		#end
@@ -104,7 +121,6 @@ class ControlsSubState extends MusicBeatSubstate {
 		text.alignment = CENTERED;
 		text.setScale(0.4);
 		add(text);
-
 		createTexts();
 	}
 
@@ -131,7 +147,7 @@ class ControlsSubState extends MusicBeatSubstate {
 
 					var str:String = option[1];
 					var keyStr:String = option[2];
-					if(isDefaultKey) str = Language.getPhrase(str);
+					if (isDefaultKey) str = Language.getPhrase(str);
 					var text:Alphabet = new Alphabet(475, 300, !isDisplayKey ? Language.getPhrase('key_$keyStr', str) : Language.getPhrase('keygroup_$str', str), !isDisplayKey);
 					text.isMenuItem = true;
 					text.changeX = false;
@@ -213,11 +229,10 @@ class ControlsSubState extends MusicBeatSubstate {
 		var model:FlxGamepadModel = gamepad != null ? gamepad.detectedModel : UNKNOWN;
 		var letter = alpha.letters[0];
 		if (model == PS4) {
-			switch(alpha.text) {
+			switch (alpha.text) {
 				case '[', ']': //Square and Triangle respectively
 					letter.image = 'alphabet_playstation';
 					letter.updateHitbox();
-					
 					letter.offset.x += 4;
 					letter.offset.y -= 5;
 			}

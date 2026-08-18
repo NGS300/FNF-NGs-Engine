@@ -242,7 +242,7 @@ class TitleState extends MusicBeatState {
 					FlxTween.tween(logoSpr, {x: logoSpr.x + 1000}, 2.8, {
 						ease: FlxEase.backInOut,
 						type: PERSIST,
-						onStart: function(twn:FlxTween) {
+						onStart: (_) -> {
 							FlxTween.tween(titleText, {y: titleText.y + 400}, 3, {
 								ease: FlxEase.backInOut,
 								type: PERSIST,
