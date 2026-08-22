@@ -6,7 +6,10 @@ class Difficulty {
     
     public static var list:Array<String> = [];
     
-    inline public static function getFilePath(num:Null<Int> = null) {
+    /**
+        get the difficulty file path
+    **/
+    public static function getFilePath(num:Null<Int> = null) {
         if (num == null)
             num = PlayState.storyDifficulty;
             
@@ -18,7 +21,10 @@ class Difficulty {
         return Paths.formatToSongPath(filePostfix);
     }
     
-    inline public static function loadFromWeek(week:WeekData = null) {
+    /**
+        Load all available difficulties from a week
+    **/
+    public static function loadFromWeek(week:WeekData = null) {
         if (week == null)
             week = WeekData.getCurrentWeek();
             
@@ -42,14 +48,23 @@ class Difficulty {
             resetList();
     }
     
+    /**
+        resets the Difficulty list to a default one    
+    **/
     inline public static function resetList() {
         list = defaultList.copy();
     }
     
+    /**
+        copy a difficulty list from one to another
+    **/
     inline public static function copyFrom(diffs:Array<String>) {
         list = diffs.copy();
     }
     
+    /**
+        get difficulty name based on translation
+    **/
     inline public static function getString(?num:Null<Int> = null, ?canTranslate:Bool = true):String {
         var diffName:String = list[num == null ? PlayState.storyDifficulty : num];
         if (diffName == null)
@@ -57,6 +72,9 @@ class Difficulty {
         return canTranslate ? Language.getPhrase('difficulty_$diffName', diffName) : diffName;
     }
     
+    /**
+        return the default difficulty
+    **/
     inline public static function getDefault():String {
         return defaultDifficulty;
     }

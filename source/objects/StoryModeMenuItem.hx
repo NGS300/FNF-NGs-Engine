@@ -22,8 +22,8 @@ class StoryModeMenuItem extends MenuItem {
     var flashTimer:Float = 0;
     var flashInterval:Float = 0.1; // 0.1s = 10 vezes por segundo
     
-    public function new(x:Float, y:Float, weekName:String = '') {
-        super(x, y, weekName);
+    public function new(x:Float, y:Float, weekName:Null<String> = '', loadGraphicWeek:Bool = true) {
+        super(x, y, weekName, loadGraphicWeek);
         startX = x;
         startY = y;
     }

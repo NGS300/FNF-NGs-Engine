@@ -3,9 +3,10 @@ package objects;
 class MenuItem extends FlxSprite {
     public var targetY:Float = 0;
     
-    public function new(x:Float, y:Float, weekName:String = '') {
+    public function new(x:Float, y:Float, weekName:String = '', loadWeekGraphic:Bool = true) {
         super(x, y);
-        loadGraphic(Paths.image('storymenu/' + weekName));
+        if (loadWeekGraphic)
+            loadGraphic(Paths.image('storymenu/' + weekName));
         antialiasing = ClientPrefs.data.antialiasing;
         // trace('Test added: ' + WeekData.getWeekNumber(weekNum) + ' (' + weekNum + ')');
     }
