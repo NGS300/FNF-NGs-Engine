@@ -12,7 +12,7 @@ class StoryModeMenuShape {
     public static function buildCut():FlxSprite {
         var shape:Shape = new Shape();
         
-        shape.graphics.beginFill(0xFFFFFFFF);
+        shape.graphics.beginFill(0xFF000000);
         shape.graphics.moveTo(0, 0);
         shape.graphics.lineTo(729, 0);
         shape.graphics.lineTo(319, FlxG.height);
@@ -23,8 +23,8 @@ class StoryModeMenuShape {
         shape.graphics.beginFill(0xFFFFFFFF);
         shape.graphics.moveTo(855 - 48, 0);
         shape.graphics.lineTo(FlxG.width, 0);
-        shape.graphics.lineTo(FlxG.width, 92 + 48);
-        shape.graphics.lineTo(936 - 48, 92 + 48);
+        shape.graphics.lineTo(FlxG.width, 92 + 32);
+        shape.graphics.lineTo(936 - 16, 92 + 32);
         shape.graphics.endFill();
         
         shape.graphics.beginFill(0xFF000000);
