@@ -353,9 +353,6 @@ class TitleState extends MusicBeatState {
                 case 9:
                     deleteCoolText();
                     ngSpr.visible = false;
-                    
-                    scale.start = 0.34;
-                    scale.bump = 0.365;
                 case 10:
                     createCoolText([curWacky[0]]);
                 case 12:
@@ -377,6 +374,8 @@ class TitleState extends MusicBeatState {
     var skippedIntro:Bool = false;
     
     function skipIntro():Void {
+        scale.start = 0.34;
+        scale.bump = 0.365;
         if (!skippedIntro) {
             remove(ngSpr);
             remove(credGroup);
