@@ -1,10 +1,7 @@
 package states;
 
 import backend.Highscore;
-import openfl.display.BitmapData;
-import openfl.display.Shape;
 import objects.StoryModeMenuShape;
-import flixel.util.FlxSpriteUtil;
 import backend.StageData;
 import backend.Song;
 import substates.ResetScoreSubState;
@@ -14,7 +11,7 @@ import flixel.addons.display.FlxBackdrop;
 import objects.StoryModeMenuItem;
 import backend.WeekData;
 
-class NewStoryMenuState extends MusicBeatState {
+class StoryMenuState extends MusicBeatState {
     public static var weekCompleted:Map<String, Bool> = new Map<String, Bool>();
     private static var lastDifficultyName:String = '';
     private static var curWeek:Int = 0;
@@ -51,9 +48,8 @@ class NewStoryMenuState extends MusicBeatState {
     var spamStop:Bool = false;
     
     override function create() {
-        Paths.clearStoredMemory();
         Paths.clearUnusedMemory();
-        
+        Paths.clearStoredMemory();
         persistentUpdate = persistentDraw = true;
         PlayState.isStoryMode = true;
         WeekData.reloadWeekFiles(true);
@@ -112,15 +108,15 @@ class NewStoryMenuState extends MusicBeatState {
         textWeekName = new FlxText();
         textWeekName.text = "This is some cool text";
         textWeekName.setFormat(Paths.font("vcr.ttf"), 25, FlxColor.WHITE, FlxTextAlign.LEFT);
-        textWeekName.x = 940;
-        textWeekName.y = 36;
+        textWeekName.x = 920;
+        textWeekName.y = 16;
         add(textWeekName);
         
         textWeekScore = new FlxText();
         textWeekScore.text = "9876543210";
         textWeekScore.setFormat(Paths.font("vcr.ttf"), 30, FlxColor.WHITE, FlxTextAlign.LEFT);
         textWeekScore.x = 940;
-        textWeekScore.y = 64;
+        textWeekScore.y = 40;
         add(textWeekScore);
         
         var num:Int = 0;
@@ -257,6 +253,11 @@ class NewStoryMenuState extends MusicBeatState {
         lockSize = even ? 1.6 : 1.5;
     }
     
+    override function destroy() {
+        super.destroy();
+        Paths.clearStoredMemory();
+    }
+    
     function weekIsLocked(name:String):Bool {
         var leWeek:WeekData = WeekData.weeksLoaded.get(name);
         return (!leWeek.startUnlocked
@@ -281,7 +282,7 @@ class NewStoryMenuState extends MusicBeatState {
             diffSprite.startY = 500;
             diffSprite.spacing = 150;
             diffSprite.y += ((diffSprite.height + diffSprite.paddingY) * idx);
-            diffSprite.alphaMultiplier = 0.55;
+            diffSprite.alphaMultiplier = 0.76;
             diffSprite.targetY = idx;
             
             diffSprite.loadGraphic(newImage);
@@ -322,6 +323,7 @@ class NewStoryMenuState extends MusicBeatState {
         WeekData.setDirectoryFromWeek(leWeek);
         
         grpWeekText.members[curWeek].disabled = weekIsLocked(leWeek.fileName);
+        textWeekName.text = leWeek.storyName;
         
         var index:Int = 0;
         for (item in grpWeekText.members) {
@@ -346,8 +348,6 @@ class NewStoryMenuState extends MusicBeatState {
     }
     
     function updateText() {
-        var weekArray:Array<String> = loadedWeeks[curWeek].weekCharacters;
-        
         var leWeek:WeekData = loadedWeeks[curWeek];
         var stringThing:Array<String> = [];
         for (i in 0...leWeek.songs.length)

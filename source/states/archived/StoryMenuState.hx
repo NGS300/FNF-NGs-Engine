@@ -13,7 +13,7 @@ import options.GameplayChangersSubstate;
 import substates.ResetScoreSubState;
 import backend.StageData;
 
-class StoryMenuState extends MusicBeatState {
+class StoryMenuStateOld extends MusicBeatState {
     public static var weekCompleted:Map<String, Bool> = new Map<String, Bool>();
     
     var scoreText:FlxText;

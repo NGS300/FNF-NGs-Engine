@@ -73,8 +73,8 @@ class TitleState extends MusicBeatState {
     var logoSpr:FlxSprite;
     var swagShader:ColorSwap = null;
     var scale:LogoScale = {
-        start: .34,
-        bump: .365,
+        start: 0.34,
+        bump: 0.365,
         target: 0
     };
     var titleText:FlxSprite;
@@ -159,14 +159,6 @@ class TitleState extends MusicBeatState {
         credGroup.add(blackScreen);
         
         if (FlxG.random.int(0, 100) < 10) {
-            ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
-            ngSpr.visible = false;
-            ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
-            ngSpr.updateHitbox();
-            ngSpr.screenCenter(X);
-            ngSpr.antialiasing = ClientPrefs.data.antialiasing;
-        }
-        else {
             ngSpr = new FlxSprite();
             ngSpr.loadGraphic(Paths.image('$i/newgrounds_logo_animated'), true, 591, 591);
             ngSpr.animation.add("idle", [0, 1], 8, true);
@@ -175,7 +167,18 @@ class TitleState extends MusicBeatState {
             ngSpr.screenCenter();
             ngSpr.y += 160;
             ngSpr.antialiasing = ClientPrefs.data.antialiasing;
+            ngSpr.animation.play("idle", true);
             ngSpr.visible = false;
+        }
+        else {
+            ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
+            ngSpr.visible = false;
+            scale.start = 0.76;
+            scale.bump = 0.80;
+            ngSpr.scale.set(scale.start, scale.start);
+            ngSpr.updateHitbox();
+            ngSpr.screenCenter(X);
+            ngSpr.antialiasing = ClientPrefs.data.antialiasing;
         }
         
         add(credGroup);
@@ -350,6 +353,9 @@ class TitleState extends MusicBeatState {
                 case 9:
                     deleteCoolText();
                     ngSpr.visible = false;
+                    
+                    scale.start = 0.34;
+                    scale.bump = 0.365;
                 case 10:
                     createCoolText([curWacky[0]]);
                 case 12:
