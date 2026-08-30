@@ -19,15 +19,13 @@ import psychlua.HScript.HScriptInfos;
 import backend.ALSoftConfig; // Just to make sure DCE doesn't remove this, since it's not directly referenced anywhere else.
 #end
 
-//crash handler stuff
-#if CRASH_HANDLER
+#if CRASH_HANDLER //crash handler stuff
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
 #end
 
-// NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
-#if (linux && !debug)
+#if (linux && !debug) // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 @:cppInclude('./external/gamemode_client.h')
 @:cppFileCode('#define GAMEMODE_AUTO')
 #end
@@ -45,34 +43,23 @@ class Main extends Sprite {
 	public static var fpsVar:FPSCounter;
 	public static var ramVar:MemoryCounter;
 
-	// You can pretty much ignore everything from here on - your code should go in your states.
-
-	public static function main():Void
-		Lib.current.addChild(new Main());
+	public static function main():Void Lib.current.addChild(new Main());
 
 	public function new() {
 		super();
+		#if (cpp && windows) backend.Native.fixScaling(); #end
 
-		#if (cpp && windows)
-		backend.Native.fixScaling();
-		#end
-
-		// Credits to MAJigsaw77 (he's the og author for this code)
 		#if android
 		Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
 		#elseif ios
 		Sys.setCwd(lime.system.System.applicationStorageDirectory);
 		#end
-		#if VIDEOS_ALLOWED
-		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
-		#end
 
-		#if LUA_ALLOWED
-		Mods.pushGlobalMods();
-		#end
+		#if VIDEOS_ALLOWED hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ["--no-lua"] #end); #end
+		#if LUA_ALLOWED Mods.pushGlobalMods(); #end
 		Mods.loadTopMod();
 
-		FlxG.save.bind('funkin', CoolUtil.getSavePath());
+		FlxG.save.bind("funkin", CoolUtil.getSavePath());
 		backend.Highscore.load();
 
 		#if HSCRIPT_ALLOWED
@@ -80,50 +67,61 @@ class Main extends Sprite {
 			Iris.logLevel(WARN, x, pos);
 			var newPos:HScriptInfos = cast pos;
 			if (newPos.showLine == null) newPos.showLine = true;
-			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : "")  + '${newPos.fileName}:';
+
 			#if LUA_ALLOWED
 			if (newPos.isLua == true) {
-				msgInfo += 'HScript:';
+				msgInfo += "HScript:";
 				newPos.showLine = false;
 			}
 			#end
+
 			if (newPos.showLine == true)
 				msgInfo += '${newPos.lineNumber}:';
 			msgInfo += ' $x';
+
 			if (PlayState.instance != null)
 				PlayState.instance.addTextToDebug('WARNING: $msgInfo', FlxColor.YELLOW);
 		}
+
 		Iris.error = function(x, ?pos:haxe.PosInfos) {
 			Iris.logLevel(ERROR, x, pos);
 			var newPos:HScriptInfos = cast pos;
 			if (newPos.showLine == null) newPos.showLine = true;
 			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+
 			#if LUA_ALLOWED
 			if (newPos.isLua == true) {
-				msgInfo += 'HScript:';
+				msgInfo += "HScript:";
 				newPos.showLine = false;
 			}
 			#end
+
 			if (newPos.showLine == true)
 				msgInfo += '${newPos.lineNumber}:';
 			msgInfo += ' $x';
+
 			if (PlayState.instance != null)
 				PlayState.instance.addTextToDebug('ERROR: $msgInfo', FlxColor.RED);
 		}
+
 		Iris.fatal = function(x, ?pos:haxe.PosInfos) {
 			Iris.logLevel(FATAL, x, pos);
 			var newPos:HScriptInfos = cast pos;
 			if (newPos.showLine == null) newPos.showLine = true;
 			var msgInfo:String = (newPos.funcName != null ? '(${newPos.funcName}) - ' : '')  + '${newPos.fileName}:';
+
 			#if LUA_ALLOWED
 			if (newPos.isLua == true) {
-				msgInfo += 'HScript:';
+				msgInfo += "HScript:";
 				newPos.showLine = false;
 			}
 			#end
+
 			if (newPos.showLine == true)
 				msgInfo += '${newPos.lineNumber}:';
 			msgInfo += ' $x';
+
 			if (PlayState.instance != null)
 				PlayState.instance.addTextToDebug('FATAL: $msgInfo', 0xFFBB0000);
 		}
@@ -146,11 +144,8 @@ class Main extends Sprite {
 		addChild(ramVar);
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = openfl.display.StageScaleMode.NO_SCALE;
-		if (Main.fpsVar != null)
-			Main.fpsVar.visible = (data == 0 ? false : true);
-
-		if (Main.ramVar != null)
-			Main.ramVar.visible = (data == 2 ? true : false);
+		if (Main.fpsVar != null) Main.fpsVar.visible = (data == 0 ? false : true);
+		if (Main.ramVar != null) Main.ramVar.visible = (data == 2 ? true : false);
 		#end
 
 		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
@@ -167,23 +162,16 @@ class Main extends Sprite {
 		FlxG.game.focusLostFramerate = 60;
 		FlxG.keys.preventDefaultKeys = [TAB];
 		
-		#if CRASH_HANDLER
-		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
-		#end
+		#if CRASH_HANDLER Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash); #end
+		#if DISCORD_ALLOWED DiscordClient.prepare(); #end
 
-		#if DISCORD_ALLOWED
-		DiscordClient.prepare();
-		#end
-
-		// shader coords fix
 		FlxG.signals.gameResized.add(function (w, h) {
 		    if (FlxG.cameras != null) {
 			   	for (cam in FlxG.cameras.list)
 					if (cam != null && cam.filters != null)
 						resetSpriteCache(cam.flashSprite);
 			}
-			if (FlxG.game != null)
-				resetSpriteCache(FlxG.game);
+			if (FlxG.game != null) resetSpriteCache(FlxG.game);
 		});
 	}
 
@@ -194,20 +182,17 @@ class Main extends Sprite {
 		}
 	}
 
-	// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
-	// very cool person for real they don't get enough credit for their work
 	#if CRASH_HANDLER
 	function onCrash(e:UncaughtErrorEvent):Void {
 		var errMsg:String = "";
 		var path:String;
 		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Date.now().toString();
 
+		var dateNow:String = Date.now().toString();
 		dateNow = dateNow.replace(" ", "_");
 		dateNow = dateNow.replace(":", "'");
 
-		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
-
+		path = "./crash/" + CoolUtil.engine.name.replace(" ", "") + '_$dateNow.txt';
 		for (stackItem in callStack) {
 			switch (stackItem) {
 				case FilePos(s, file, line, column): errMsg += file + " (line " + line + ")\n";
@@ -216,25 +201,16 @@ class Main extends Sprite {
 		}
 
 		errMsg += "\nUncaught Error: " + e.error;
-		// remove if you're modding and want the crash log message to contain the link
-		// please remember to actually modify the link for the github page to report the issues to.
-		#if officialBuild
-		errMsg += "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine";
-		#end
 		errMsg += "\n\n> Crash Handler written by: sqirra-rng";
 
-		if (!FileSystem.exists("./crash/"))
-			FileSystem.createDirectory("./crash/");
-
+		if (!FileSystem.exists("./crash/")) FileSystem.createDirectory("./crash/");
 		File.saveContent(path, errMsg + "\n");
 
 		Sys.println(errMsg);
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
 		lime.app.Application.current.window.alert(errMsg, "Error!");
-		#if DISCORD_ALLOWED
-		DiscordClient.shutdown();
-		#end
+		#if DISCORD_ALLOWED DiscordClient.shutdown(); #end
 		Sys.exit(1);
 	}
 	#end

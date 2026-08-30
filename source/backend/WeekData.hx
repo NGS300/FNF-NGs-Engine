@@ -17,7 +17,7 @@ typedef WeekFile = { // JSON variables
 class WeekData {
 	public static var weeksLoaded:Map<String, WeekData> = new Map<String, WeekData>();
 	public static var weeksList:Array<String> = [];
-	public var folder:String = '';
+	public var folder:String = "";
 	public var fileName:String;
 
 	// JSON variables
@@ -36,16 +36,16 @@ class WeekData {
 	public static function createWeekFile():WeekFile {
 		var weekFile:WeekFile = {
 			songs: [["Song1", "face", [146, 113, 253]], ["Song2", "face", [146, 113, 253]], ["Song3", "face", [146, 113, 253]]],
-			weekCharacters: ['bf', 'bf', 'gf'],
-			weekBackground: 'stage',
-			weekBefore: 'tutorial',
-			storyName: 'Your New Week',
-			weekName: 'Custom Week',
+			weekCharacters: ["bf", "bf", "gf"],
+			weekBackground: "stage",
+			weekBefore: "tutorial",
+			storyName: "Your New Week",
+			weekName: "Custom Week",
 			startUnlocked: true,
 			hiddenUntilUnlocked: false,
 			hideStoryMode: false,
 			hideFreeplay: false,
-			difficulties: ''
+			difficulties: ""
 		};
 		return weekFile;
 	}
@@ -66,20 +66,20 @@ class WeekData {
 		var originalLength:Int = directories.length;
 
 		for (mod in Mods.parseList().enabled)
-			directories.push(Paths.mods(mod + '/'));
+			directories.push(Paths.mods(mod + "/"));
 		#else
 		var directories:Array<String> = [Paths.getSharedPath()];
 		var originalLength:Int = directories.length;
 		#end
 
-		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getSharedPath('weeks/weekList.txt'));
+		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getSharedPath("weeks/weekList.txt"));
 		for (i in 0...sexList.length) {
 			for (j in 0...directories.length) {
-				var fileToCheck:String = directories[j] + 'weeks/' + sexList[i] + '.json';
+				var fileToCheck:String = directories[j] + "weeks/" + sexList[i] + ".json";
 				if (!weeksLoaded.exists(sexList[i])) {
 					var week:WeekFile = getWeekFile(fileToCheck);
 					if (week != null) {
-						var weekFile:WeekData = new WeekData(week, sexList[i]);
+						var weekFile = new WeekData(week, sexList[i]);
 
 						#if MODS_ALLOWED
 						if (j >= originalLength)
@@ -97,18 +97,18 @@ class WeekData {
 
 		#if MODS_ALLOWED
 		for (i in 0...directories.length) {
-			var directory:String = directories[i] + 'weeks/';
+			var directory:String = directories[i] + "weeks/";
 			if (FileSystem.exists(directory)) {
-				var listOfWeeks:Array<String> = CoolUtil.coolTextFile(directory + 'weekList.txt');
+				var listOfWeeks:Array<String> = CoolUtil.coolTextFile(directory + "weekList.txt");
 				for (daWeek in listOfWeeks) {
-					var path:String = directory + daWeek + '.json';
+					var path:String = directory + daWeek + ".json";
 					if (FileSystem.exists(path))
 						addWeek(daWeek, path, directories[i], i, originalLength);
 				}
 
 				for (file in FileSystem.readDirectory(directory)) {
 					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
+					if (!FileSystem.isDirectory(path) && file.endsWith(".json"))
 						addWeek(file.substr(0, file.length - 5), path, directories[i], i, originalLength);
 				}
 			}
@@ -120,7 +120,7 @@ class WeekData {
 		if (!weeksLoaded.exists(weekToCheck)) {
 			var week:WeekFile = getWeekFile(path);
 			if (week != null) {
-				var weekFile:WeekData = new WeekData(week, weekToCheck);
+				var weekFile = new WeekData(week, weekToCheck);
 				if (i >= originalLength) {
 					#if MODS_ALLOWED
 					weekFile.folder = directory.substring(Paths.mods().length, directory.length-1);
@@ -144,7 +144,6 @@ class WeekData {
 		if (OpenFlAssets.exists(path))
 			rawJson = Assets.getText(path);
 		#end
-
 		if (rawJson != null && rawJson.length > 0)
 			return cast tjson.TJSON.parse(rawJson);
 		return null;
@@ -158,7 +157,7 @@ class WeekData {
 		return weeksLoaded.get(weeksList[PlayState.storyWeek]);
 
 	public static function setDirectoryFromWeek(?data:WeekData = null) {
-		Mods.currentModDirectory = '';
+		Mods.currentModDirectory = "";
 		if (data != null && data.folder != null && data.folder.length > 0)
 			Mods.currentModDirectory = data.folder;
 	}

@@ -13,15 +13,17 @@ class FPSCounter extends openfl.text.TextField {
 	public var currentFPS(default, null):Int;
 
 	@:noCompletion private var times:Array<Float>;
-
 	public function new(y = 10.0) {
 		super();
 		this.x = 0;
 		this.y = y;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new openfl.text.TextFormat(Paths.font('inter/regular.ttf'), 10, 0xFFFFFF);
+
+		var fontName:String = openfl.utils.Assets.getFont(Paths.font("inter/regular.ttf")).name;
+		defaultTextFormat = new openfl.text.TextFormat(fontName, 10, 0xFFFFFF);
 		autoSize = LEFT;
+
 		multiline = true;
 		text = "FPS: ";
 		times = [];

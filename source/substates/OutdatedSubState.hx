@@ -41,12 +41,11 @@ class OutdatedSubState extends MusicBeatSubstate {
 		if (!leftState) {
 			if (controls.ACCEPT) {
 				leftState = true;
-				CoolUtil.browserLoad('https://github.com/NGS300/FNF-NGs-Engine/releases/latest');
-			} else if (controls.BACK)
-				leftState = true;
+				CoolUtil.browserLoad("https://github.com/NGS300/FNF-NGs-Engine/releases/latest");
+			} else if (controls.BACK) leftState = true;
 
 			if (leftState) {
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.sound("cancelMenu"));
 				FlxTween.tween(bg, { alpha: 0.0 }, 0.9, { ease: FlxEase.sineOut });
 				FlxTween.tween(warnText, {alpha: 0}, 1, {
 					ease: FlxEase.sineOut,

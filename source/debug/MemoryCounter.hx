@@ -11,7 +11,6 @@ class MemoryCounter extends openfl.text.TextField {
 		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
 	**/
 	public var memoryMegas(get, never):Float;
-
 	public static var memPeak = 0.0;
 
 	public function new(y = 10.0) {
@@ -20,8 +19,11 @@ class MemoryCounter extends openfl.text.TextField {
 		this.y = y;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new openfl.text.TextFormat(Paths.font('inter/regular.ttf'), 10, 0xFFFFFF);
+
+		var fontName:String = openfl.utils.Assets.getFont(Paths.font("inter/regular.ttf")).name;
+		defaultTextFormat = new openfl.text.TextFormat(fontName, 10, 0xFFFFFF);
 		autoSize = LEFT;
+
 		multiline = true;
 		text = "RAM: ";
 	}

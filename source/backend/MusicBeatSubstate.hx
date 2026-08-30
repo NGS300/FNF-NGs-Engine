@@ -84,7 +84,6 @@ class MusicBeatSubstate extends flixel.FlxSubState {
 	}
 
 	public function beatHit():Void { /* do literally nothing dumbass */}
-	
 	public function sectionHit():Void { /* yep, you guessed it, nothing again, dumbass */ }
 	
 	function getBeatsOnSection() {

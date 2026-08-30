@@ -37,7 +37,10 @@ import backend.Language;
 import backend.ui.*; //Psych-UI
 
 import objects.Alphabet;
+import objects.AnimatedSprite;
 import objects.BGSprite;
+import objects.Graphic;
+import objects.Sprite;
 
 import states.PlayState;
 import states.LoadingState;

@@ -154,7 +154,7 @@ function onRecalculateRating() {
 	return Function_Continue;
 }
 function onMoveCamera(focus:String) { // Called when the camera focuses to a character
-	if (focus == 'boyfriend') {
+	if (focus == 'bf') {
 		// Called when the camera focuses on boyfriend
 	} else if (focus == 'dad') {
 		// Called when the camera focuses on dad

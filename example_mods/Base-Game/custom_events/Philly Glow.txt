@@ -1,0 +1,3 @@
+Stage: Philly
+Exclusive to Philly,
+Value 1: 0/1/2 = OFF/ON/Reset Gradient.

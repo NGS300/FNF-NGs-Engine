@@ -1,25 +1,21 @@
 package states;
 
-class ErrorState extends MusicBeatState
-{
+class ErrorState extends MusicBeatState {
 	public var acceptCallback:Void->Void;
 	public var backCallback:Void->Void;
 	public var errorMsg:String;
 
-	public function new(error:String, accept:Void->Void = null, back:Void->Void = null)
-	{
+	public function new(error:String, accept:Void->Void = null, back:Void->Void = null) {
 		this.errorMsg = error;
 		this.acceptCallback = accept;
 		this.backCallback = back;
-
 		super();
 	}
 
 	public var errorSine:Float = 0;
 	public var errorText:FlxText;
-	override function create()
-	{
-		var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+	override function create() {
+		var bg = new FlxSprite().loadGraphic(Paths.image("menus/menuDesat"));
 		bg.color = FlxColor.GRAY;
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
@@ -34,16 +30,11 @@ class ErrorState extends MusicBeatState
 		super.create();
 	}
 
-	override function update(elapsed:Float)
-	{
+	override function update(elapsed:Float) {
 		errorSine += 180 * elapsed;
 		errorText.alpha = 1 - Math.sin((Math.PI * errorSine) / 180);
-
-		if(controls.ACCEPT && acceptCallback != null)
-			acceptCallback();
-		else if(controls.BACK && backCallback != null)
-			backCallback();
-
+		if (controls.ACCEPT && acceptCallback != null) acceptCallback();
+		else if (controls.BACK && backCallback != null) backCallback();
 		super.update(elapsed);
 	}
 }

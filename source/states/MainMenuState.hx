@@ -32,7 +32,7 @@ class MainMenuState extends MusicBeatState {
     var intendedColor:Int;
 	var bgFlicker:FlxSprite;
     var NORMAL_X:Int = 625;
-    
+
     var optionShit = [
         { name: "story_mode", color: "FFD84C" },
         { name: "freeplay", color: "4CDFFF" },
@@ -40,26 +40,21 @@ class MainMenuState extends MusicBeatState {
         { name: "credits", color: "FF6BD6" }
     ];
 
-    var rightUpOption = #if ACHIEVEMENTS_ALLOWED { name: 'achievements', color: '8B52FF' } #else null #end;
+    var rightUpOption = #if ACHIEVEMENTS_ALLOWED { name: "achievements", color: "8B52FF" } #else null #end;
     var rightDownOption = { name: "options", color: "6CFF8D" };
 
     static var showOutdatedWarning:Bool = true;
     override function create() {
         super.create();
-
-        #if MODS_ALLOWED
-        Mods.pushGlobalMods();
-        #end
+        #if MODS_ALLOWED Mods.pushGlobalMods(); #end
         Mods.loadTopMod();
 
-        #if DISCORD_ALLOWED // Updating Discord Rich Presence
-        DiscordClient.changePresence("In the Main menu", null);
-        #end
-
+        #if DISCORD_ALLOWED DiscordClient.changePresence("In the Main menu", null); #end // Updating Discord Rich Presence
         persistentUpdate = persistentDraw = true;
 
+        var i = Paths.image("menus/menuDesat");
         var yScroll:Float = 0.25;
-        bg = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
+        bg = new FlxSprite(-80).loadGraphic(i);
         bg.antialiasing = ClientPrefs.data.antialiasing;
         bg.scrollFactor.set(0, yScroll);
         bg.setGraphicSize(Std.int(bg.width * 1.175));
@@ -70,7 +65,7 @@ class MainMenuState extends MusicBeatState {
         camFollow = new FlxObject(0, 0, 1, 1);
         add(camFollow);
 
-        bgFlicker = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
+        bgFlicker = new FlxSprite(-80).loadGraphic(i);
         bgFlicker.antialiasing = ClientPrefs.data.antialiasing;
         bgFlicker.scrollFactor.set(0, yScroll);
         bgFlicker.setGraphicSize(Std.int(bgFlicker.width * 1.175));
@@ -105,28 +100,21 @@ class MainMenuState extends MusicBeatState {
         changeItem();
 
         #if ACHIEVEMENTS_ALLOWED
-        // Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
         var leDate = Date.now();
-        if (leDate.getDay() == 5 && leDate.getHours() >= 18)
-            Achievements.unlock('friday_night_play');
-
-        #if MODS_ALLOWED
-        Achievements.reloadList();
-        #end
+        if (leDate.getDay() == 5 && leDate.getHours() >= 18) // Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
+            Achievements.unlock("friday_night_play");
+        #if MODS_ALLOWED Achievements.reloadList(); #end
         #end
 
         #if CHECK_FOR_UPDATES
         if (showOutdatedWarning && ClientPrefs.data.checkForUpdates) {
             showOutdatedWarning = false;
-
             CoolUtil.checkForUpdates(function(latest:String) {
                 substates.OutdatedSubState.updateVersion = latest;
-
                 if (CoolUtil.compareValues(latest, CoolUtil.engine.version)) {
                     persistentUpdate = false;
                     openSubState(new substates.OutdatedSubState());
-                } else
-                    trace('No updates available.');
+                } else trace("No updates available.");
             }, "https://raw.githubusercontent.com/NGS300/FNF-NGs-Engine/main/source/states/TitleState.hx");
         }
         #end
@@ -135,12 +123,12 @@ class MainMenuState extends MusicBeatState {
 
     function createMenuItem(name:String, x:Float, y:Float):FlxSprite {
         var menuItem = new FlxSprite(x, y);
-        menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_$name');
-        menuItem.animation.addByPrefix('idle', '$name idle', 24, true);
-        menuItem.animation.addByPrefix('selected', '$name selected', 24, true);
-        menuItem.animation.play('idle');
+        menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/menu_$name');
+        menuItem.animation.addByPrefix("idle", '$name idle', 24, true);
+        menuItem.animation.addByPrefix("selected", '$name selected', 24, true);
+        menuItem.animation.play("idle");
         menuItem.updateHitbox();
-        
+
         menuItem.antialiasing = ClientPrefs.data.antialiasing;
         menuItem.scrollFactor.set();
         menuItems.add(menuItem);
@@ -226,7 +214,6 @@ class MainMenuState extends MusicBeatState {
                         curColumn = RIGHT_DOWN;
                         changeItem();
                     }
-
                 case RIGHT_UP, RIGHT_DOWN:
                     if (controls.UI_LEFT_P) {
                         curColumn = LEFT;
@@ -237,12 +224,12 @@ class MainMenuState extends MusicBeatState {
             if (controls.BACK) {
                 selectedSomethin = true;
                 FlxG.mouse.visible = false;
-                FlxG.sound.play(Paths.sound('cancelMenu'));
+                FlxG.sound.play(Paths.sound("cancelMenu"));
                 MusicBeatState.switchState(new TitleState());
             }
 
             if (controls.ACCEPT || (FlxG.mouse.justPressed && allowMouse)) {
-                FlxG.sound.play(Paths.sound('confirmMenu'));
+                FlxG.sound.play(Paths.sound("confirmMenu"));
                 selectedSomethin = true;
                 FlxG.mouse.visible = false;
 
@@ -255,31 +242,22 @@ class MainMenuState extends MusicBeatState {
                     case LEFT:
                         option = optionShit[curSelected].name;
                         item = menuItems.members[curSelected];
-
                     case RIGHT_UP:
                         option = rightUpOption.name;
                         item = rightUpItem;
-
                     case RIGHT_DOWN:
                         option = rightDownOption.name;
                         item = rightDownItem;
                 }
 
-                FlxFlicker.flicker(item, 1, 0.06, false, false, function(flick:FlxFlicker) {
+                FlxFlicker.flicker(item, 1, 0.06, false, false, (_) -> {
                     switch (option) {
-                        case 'story_mode': MusicBeatState.switchState(new StoryMenuState());
-                        case 'freeplay': MusicBeatState.switchState(new FreeplayState());
-
-                        #if MODS_ALLOWED
-                        case 'mods': MusicBeatState.switchState(new ModsMenuState());
-                        #end
-
-                        #if ACHIEVEMENTS_ALLOWED
-                        case 'achievements': MusicBeatState.switchState(new AchievementsMenuState());
-                        #end
-
-                        case 'credits': MusicBeatState.switchState(new CreditsState());
-                        case 'options':
+                        case "story_mode": MusicBeatState.switchState(new StoryMenuState());
+                        case "freeplay": MusicBeatState.switchState(new FreeplayState());
+                        #if MODS_ALLOWED case "mods": MusicBeatState.switchState(new ModsMenuState()); #end
+                        #if ACHIEVEMENTS_ALLOWED case "achievements": MusicBeatState.switchState(new AchievementsMenuState()); #end
+                        case "credits": MusicBeatState.switchState(new CreditsState());
+                        case "options":
                             MusicBeatState.switchState(new OptionsState());
                             OptionsState.onPlayState = false;
                             if (PlayState.SONG != null) {
@@ -287,8 +265,8 @@ class MainMenuState extends MusicBeatState {
                                 PlayState.SONG.splashSkin = null;
                                 PlayState.stageUI = 'normal';
                             }
-                        case 'donate':
-                            CoolUtil.browserLoad('https://ninja-muffin24.itch.io/funkin');
+                        case "donate":
+                            CoolUtil.browserLoad("https://ninja-muffin24.itch.io/funkin");
                             selectedSomethin = false;
                             item.visible = true;
                         default:
@@ -297,14 +275,14 @@ class MainMenuState extends MusicBeatState {
                             item.visible = true;
                     }
                 });
-                
+
                 for (memb in menuItems) {
                     if (memb == item) continue;
                     FlxTween.tween(memb, {alpha: 0}, 0.4, {ease: FlxEase.quadOut});
                 }
             }
             #if desktop
-            if (controls.justPressed('debug_1')) {
+            if (controls.justPressed("debug_1")) {
                 selectedSomethin = true;
                 FlxG.mouse.visible = false;
                 MusicBeatState.switchState(new MasterEditorMenu());
@@ -317,16 +295,14 @@ class MainMenuState extends MusicBeatState {
     function changeItem(change:Int = 0) {
         if (change != 0) curColumn = LEFT;
         curSelected = FlxMath.wrap(curSelected + change, 0, optionShit.length - 1);
-        FlxG.sound.play(Paths.sound('scrollMenu'));
+        FlxG.sound.play(Paths.sound("scrollMenu"));
 
         final SELECTED_X = NORMAL_X - 90;
         for (i in 0...menuItems.length) {
             var item = menuItems.members[i];
-            item.animation.play('idle');
+            item.animation.play("idle");
             item.centerOffsets();
-            
-            if (i < optionShit.length)
-                item.x = (FlxG.width / 2) - NORMAL_X;
+            if (i < optionShit.length) item.x = (FlxG.width / 2) - NORMAL_X;
         }
 
         var selectedItem:FlxSprite;
@@ -335,21 +311,21 @@ class MainMenuState extends MusicBeatState {
             case RIGHT_UP: selectedItem = rightUpItem;
             case RIGHT_DOWN: selectedItem = rightDownItem;
         }
-        selectedItem.animation.play('selected');
+        selectedItem.animation.play("selected");
         selectedItem.centerOffsets();
 
         if (curColumn == LEFT) {
             var moreX:Float;
             switch (optionShit[curSelected].name) {
-                case 'freeplay': moreX = 16;
-                case 'mods': moreX = 68;
-                case 'credits': moreX = 2;
+                case "freeplay": moreX = 16;
+                case "mods": moreX = 68;
+                case "credits": moreX = 2;
                 default: moreX = 0;
             }
             selectedItem.x = (FlxG.width / 2) - (SELECTED_X + moreX);
         }
         camFollow.y = selectedItem.getGraphicMidpoint().y;
-        
+
         var targetColor:String = "FFFFFF";
         switch(curColumn) {
             case LEFT:  targetColor = optionShit[curSelected].color;

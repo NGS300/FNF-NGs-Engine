@@ -4,8 +4,7 @@ import backend.Song;
 import backend.Difficulty;
 import flixel.util.FlxSort;
 
-// Chart
-typedef VSliceChart = {
+typedef VSliceChart = { // Chart
 	var scrollSpeed:Dynamic;	// Map<String, Float>
 	var events:Array<VSliceEvent>;
 	var notes:Dynamic;			// Map<String, Array<VSliceNote>>
@@ -26,8 +25,7 @@ typedef VSliceEvent = {
 	var v:Dynamic;	//Values
 }
 
-// Metadata
-typedef VSliceMetadata =  {
+typedef VSliceMetadata =  { // Metadata
 	var songName:String;
 	var artist:String;
 	var charter:String;
@@ -62,8 +60,7 @@ typedef PsychEventChart = {
 	var format:String;
 }
 
-// Package
-typedef VSlicePackage = {
+typedef VSlicePackage = { // Package
 	var chart:VSliceChart;
 	var metadata:VSliceMetadata;
 }
@@ -75,8 +72,8 @@ typedef PsychPackage = {
 
 class VSlice {
 	static var generatedName:String = '${CoolUtil.engine.name} v${CoolUtil.engine.version} - Chart Editor V-Slice';
-	public static final metadataVersion = '2.2.3';
-	public static final chartVersion = '2.0.0';
+	public static final metadataVersion = "0.1.0";
+	public static final chartVersion = "1.0.0";
 	public static function convertToPsych(chart:VSliceChart, metadata:VSliceMetadata):PsychPackage {
 		var songDifficulties:Map<String, SwagSong> = [];
 		var timeChanges:Array<VSliceTimeChange> = cast metadata.timeChanges;
@@ -86,13 +83,13 @@ class VSlice {
 		timeChanges.shift();
 
 		var stage:String = metadata.playData.stage;
-		switch (stage) { //Psych and VSlice use different names for some stages
-			case 'mainStage': stage = 'stage';
-			case 'spookyMansion': stage = 'spooky';
-			case 'phillyTrain': stage = 'philly';
-			case 'limoRide': stage = 'limo';
-			case 'mallXmas': stage = 'mall';
-			case 'tankmanBattlefield': stage = 'tank';
+		switch (stage) {
+			case "mainStage": stage = "stage";
+			case "spookyMansion": stage = "spooky";
+			case "phillyTrain": stage = "philly";
+			case "limoRide": stage = "limo";
+			case "mallXmas": stage = "mall";
+			case "tankmanBattlefield": stage = "tank";
 		}
 
 		var lastNoteTime:Float = 0;
@@ -114,7 +111,7 @@ class VSlice {
 		if (allEvents != null && allEvents.length > 0) {
 			var time:Float = 0;
 			allEvents.sort(sortByTime);
-			focusCameraEvents = allEvents.filter((event:Dynamic) -> event.e == 'FocusCamera' && (event.v == 0 || event.v == 1 || event.v.char != null));
+			focusCameraEvents = allEvents.filter((event:Dynamic) -> event.e == "FocusCamera" && (event.v == 0 || event.v == 1 || event.v.char != null));
 			if (focusCameraEvents.length > 0) {
 				var focusEventNum:Int = 0;
 				var lastMustHit:Bool = false;
@@ -134,15 +131,15 @@ class VSlice {
 							focusEventNum = i;
 							break;
 						}
-						
+
 						var char:Dynamic = focusEvent.v.char;
 						if (char != null)
 							char = Std.string(char);
 						else
 							char = Std.string(focusEvent.v);
 
-						if (char == null) char = '1';
-						lastMustHit = (char == '0');
+						if (char == null) char = "1";
+						lastMustHit = (char == "0");
 					}
 					sectionMustHits.push(lastMustHit);
 					sectionTime = Conductor.calculateCrochet(bpm) * 4;
@@ -180,14 +177,14 @@ class VSlice {
 		}
 
 		for (diff in metadata.playData.difficulties) { // create sections based on how much time there is until the last note
-			var scrollSpeed:Float = Reflect.hasField(chart.scrollSpeed, diff) ? Reflect.field(chart.scrollSpeed, diff) : Reflect.field(chart.scrollSpeed, 'default');
+			var scrollSpeed:Float = Reflect.hasField(chart.scrollSpeed, diff) ? Reflect.field(chart.scrollSpeed, diff) : Reflect.field(chart.scrollSpeed, "default");
 			var notes:Array<VSliceNote> = notesMap.get(diff);
 
 			var sectionData:Array<SwagSection> = [];
 			for (section in baseSections) { //clone sections
 				var sec:SwagSection = emptySection();
 				sec.mustHitSection = section.mustHitSection;
-				if (Reflect.hasField(section, 'changeBPM')) {
+				if (Reflect.hasField(section, "changeBPM")) {
 					sec.changeBPM = section.changeBPM;
 					sec.bpm = section.bpm;
 				}
@@ -200,7 +197,7 @@ class VSlice {
 				while (noteSec + 1 < sectionTimes.length && sectionTimes[noteSec + 1] <= note.t)
 					noteSec++;
 				var psychNote:Array<Dynamic> = [note.t, note.d, (note.l != null ? note.l : 0)];
-				if (note.k != null && note.k.length > 0 && note.k != 'normal') psychNote.push(note.k);
+				if (note.k != null && note.k.length > 0 && note.k != "normal") psychNote.push(note.k);
 
 				if (sectionData[noteSec] != null)
 					sectionData[noteSec].sectionNotes.push(psychNote);
@@ -219,12 +216,12 @@ class VSlice {
 				player2: metadata.playData.characters.opponent,
 				gfVersion: metadata.playData.characters.girlfriend,
 				stage: stage,
-				format: 'psych_v1_convert'
+				format: 'nge_v0_convert'
 			}
 
-			Reflect.setField(swagSong, 'artist', metadata.artist);
-			Reflect.setField(swagSong, 'charter', metadata.charter);
-			Reflect.setField(swagSong, 'generatedBy', '$generatedName Importer');
+			Reflect.setField(swagSong, "artist", metadata.artist);
+			Reflect.setField(swagSong, "charter", metadata.charter);
+			Reflect.setField(swagSong, "generatedBy", '$generatedName Importer');
 			songDifficulties.set(diff, swagSong);
 		}
 		var pack:PsychPackage = {difficulties: songDifficulties, events: null};
@@ -258,7 +255,7 @@ class VSlice {
 				fileEvents.push([event.t, [fields]]);
 			}
 			fileEvents.sort(sortByTime);
-			pack.events = {events: fileEvents, format: 'psych_v1_convert'};
+			pack.events = {events: fileEvents, format: "nge_v0_convert"};
 		}
 		return pack;
 	}
@@ -274,7 +271,6 @@ class VSlice {
 						events.push({t: event[0], e: lilEvent[0], v: {value1: lilEvent[1], value2: lilEvent[2]}});
 			}
 		}
-
 		var notes:Array<VSliceNote> = [];
 		//var generatedBy:String = 'Psych Engine v${MainMenuState.engineVersion} - Chart Editor V-Slice Exporter';
 		var timeChanges:Array<VSliceTimeChange> = [];
@@ -305,7 +301,7 @@ class VSlice {
 				}
 
 				if (lastMustHit != section.mustHitSection) {
-					events.push({t: time, e: 'FocusCamera', v: {char: section.mustHitSection ? 0 : 1}});
+					events.push({t: time, e: "FocusCamera", v: {char: section.mustHitSection ? 0 : 1}});
 					lastMustHit = section.mustHitSection;
 				}
 
@@ -315,17 +311,14 @@ class VSlice {
 		}
 		events.sort(sortByTime);
 		notes.sort(sortByTime);
-		
-		// try to find composer despite it not being a value on psych charts
-		var composer:String = 'Unknown';
-		if (Reflect.hasField(songData, 'artist')) composer = Reflect.field(songData, 'artist');
-		else if (Reflect.hasField(songData, 'composer')) composer = Reflect.field(songData, 'composer');
 
-		var charter:String = 'Unknown';
-		if (Reflect.hasField(songData, 'charter')) composer = Reflect.field(songData, 'charter');
+		var composer:String = "Unknown";
+		if (Reflect.hasField(songData, "artist")) composer = Reflect.field(songData, "artist");
+		else if (Reflect.hasField(songData, "composer")) composer = Reflect.field(songData, "composer");
 
-		// Has to add all difficulties or it might crash on V-Slice's Freeplay
-		var diffs:Array<String> = null;
+		var charter:String = "Unknown";
+		if (Reflect.hasField(songData, "charter")) composer = Reflect.field(songData, "charter");
+		var diffs:Array<String> = null; // Has to add all difficulties or it might crash on V-Slice's Freeplay
 
 		var scrollSpeed:Map<String, Float> = [];
 		var notesMap:Map<String, Array<VSliceNote>> = [];
@@ -344,8 +337,7 @@ class VSlice {
 			notesMap.set(diff, notes);
 		}
 
-		// Build package
-		var chart:VSliceChart = {
+		var chart:VSliceChart = { // Build package
 			scrollSpeed: scrollSpeed,
 			events: events,
 			notes: notesMap,
@@ -355,12 +347,12 @@ class VSlice {
 
 		var stage:String = songData.stage;
 		switch (stage) { //Psych and VSlice use different names for some stages
-			case 'stage': stage = 'mainStage';
-			case 'spooky': stage = 'spookyMansion';
-			case 'philly': stage = 'phillyTrain';
-			case 'limo': stage = 'limoRide';
-			case 'mall': stage = 'mallXmas';
-			case 'tank': stage = 'tankmanBattlefield';
+			case "stage": stage = "mainStage";
+			case "spooky": stage = "spookyMansion";
+			case "philly": stage = "phillyTrain";
+			case "limo": stage = "limoRide";
+			case "mall": stage = "mallXmas";
+			case "tank": stage = "tankmanBattlefield";
 		}
 
 		var metadata:VSliceMetadata = {
@@ -371,13 +363,13 @@ class VSlice {
 				difficulties: diffs,
 				characters: {
 					player: songData.player1,
-					girlfriend: songData.gfVersion != null ? songData.gfVersion : '', //there is no problem if gf don't exist with it 
+					girlfriend: songData.gfVersion != null ? songData.gfVersion : "", //there is no problem if gf don't exist with it 
 					opponent: songData.player2
 				},
-				noteStyle: !PlayState.isPixelStage ? 'funkin' : 'pixel',
+				noteStyle: !PlayState.isPixelStage ? "funkin" : "pixel",
 				stage: stage
 			},
-			timeFormat: 'ms',
+			timeFormat: "ms",
 			timeChanges: timeChanges,
 			generatedBy: generatedBy,
 			version: metadataVersion //idk what "version" does on V-Slice, but it seems to break without it

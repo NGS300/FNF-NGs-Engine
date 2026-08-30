@@ -30,28 +30,12 @@ enum abstract AchievementOp(String) {
 class Achievements {
 	public static function init() {
 		createAchievement('friday_night_play',		{name: "Freaky on a Friday Night", description: "Play on a Friday... Night.", hidden: true});
-		#if BASE_GAME_FILES
-		createAchievement('week1_nomiss',			{name: "She Calls Me Daddy Too", description: "Beat Week 1 on Hard with no Misses."});
-		createAchievement('week2_nomiss',			{name: "No More Tricks", description: "Beat Week 2 on Hard with no Misses."});
-		createAchievement('week3_nomiss',			{name: "Call Me The Hitman", description: "Beat Week 3 on Hard with no Misses."});
-		createAchievement('week4_nomiss',			{name: "Lady Killer", description: "Beat Week 4 on Hard with no Misses."});
-		createAchievement('week5_nomiss',			{name: "Missless Christmas", description: "Beat Week 5 on Hard with no Misses."});
-		createAchievement('week6_nomiss',			{name: "Highscore!!", description: "Beat Week 6 on Hard with no Misses."});
-		createAchievement('week7_nomiss',			{name: "God Effing Damn It!", description: "Beat Week 7 on Hard with no Misses."});
-		createAchievement('weekend1_nomiss',		{name: "Just a Friendly Sparring", description: "Beat Weekend 1 on Hard with no Misses."});
-		#end
-		createAchievement('ur_bad',					{name: "What a Funkin' Disaster!", description: "Complete a Song with a rating lower than 20%."});
-		createAchievement('ur_good',				{name: "Perfectionist", description: "Complete a Song with a rating of 100%."});
-		#if BASE_GAME_FILES
-		createAchievement('roadkill_enthusiast',	{name: "Roadkill Enthusiast", description: "Watch the Henchmen die 50 times.", maxScore: 50, maxDecimals: 0});
-		#end
-		createAchievement('oversinging', 			{name: "Oversinging Much...?", description: "Sing for 10 seconds without going back to Idle."});
 		createAchievement('hype',					{name: "Hyperactive", description: "Finish a Song without going back to Idle."});
 		createAchievement('two_keys',				{name: "Just the Two of Us", description: "Finish a Song pressing only two keys."});
+		createAchievement('oversinging', 			{name: "Oversinging Much...?", description: "Sing for 10 seconds without going back to Idle."});
+		createAchievement('ur_good',				{name: "Perfectionist", description: "Complete a Song with a rating of 100%."});
+		createAchievement('ur_bad',					{name: "What a Funkin' Disaster!", description: "Complete a Song with a rating lower than 20%."});
 		createAchievement('toastie',				{name: "Toaster Gamer", description: "Have you tried to run the game on a toaster?"});
-		#if BASE_GAME_FILES
-		createAchievement('debugger',				{name: "Debugger", description: "Beat the \"Test\" Stage from the Chart Editor.", hidden: true});
-		#end
 		_originalLength = _sortID + 1; //dont delete this thing below
 	}
 
@@ -67,7 +51,7 @@ class Achievements {
 
 	public static function save():Void {
 		var achievements = new FlxSave();
-		achievements.bind('achievements_v2', CoolUtil.getSavePath());
+		achievements.bind("achievements_v2", CoolUtil.getSavePath());
 		achievements.data.unlocked = unlocked;
 		achievements.data.achievementsVariables = variables;
 		achievements.flush();
@@ -79,8 +63,8 @@ class Achievements {
 
 		if (_originalLength < 0) init();
 
-		var achievements:FlxSave = new FlxSave();
-		achievements.bind('achievements_v2', CoolUtil.getSavePath());
+		var achievements = new FlxSave();
+		achievements.bind("achievements_v2", CoolUtil.getSavePath());
 		if (achievements != null) {
 			if (achievements.data.unlocked != null)
 				unlocked = achievements.data.unlocked;
@@ -142,7 +126,6 @@ class Achievements {
 			throw new Exception('Achievement "$name" does not exists!');
 			return null;
 		}
-
 		if (Achievements.isUnlocked(name)) return null;
 
 		trace('Completed achievement "$name"');
@@ -150,8 +133,8 @@ class Achievements {
 
 		// earrape prevention
 		var time:Int = openfl.Lib.getTimer();
-		if(Math.abs(time - _lastUnlock) >= 100) { //If last unlocked happened in less than 100 ms (0.1s) ago, then don't play sound
-			FlxG.sound.play(Paths.sound('confirmMenu'), 0.5);
+		if (Math.abs(time - _lastUnlock) >= 100) { //If last unlocked happened in less than 100 ms (0.1s) ago, then don't play sound
+			FlxG.sound.play(Paths.sound("confirmMenu"), 0.5);
 			_lastUnlock = time;
 		}
 
@@ -174,11 +157,11 @@ class Achievements {
 
 	public static function startPopup(achieve:String, endFunc:Void->Void = null) {
 		for (popup in _popups) {
-			if(popup == null) continue;
+			if (popup == null) continue;
 			popup.intendedY += 150;
 		}
 
-		var newPop:AchievementPopup = new AchievementPopup(achieve, endFunc);
+		var newPop = new AchievementPopup(achieve, endFunc);
 		_popups.push(newPop);
 		//trace('Giving achievement ' + achieve);
 	}
@@ -195,19 +178,19 @@ class Achievements {
 
 	#if MODS_ALLOWED
 	public static function reloadList() {
-		// remove modded achievements
-		if ((_sortID + 1) > _originalLength)
+		if ((_sortID + 1) > _originalLength) // remove modded achievements
 			for (key => value in achievements)
 				if (value.mod != null)
 					achievements.remove(key);
-		_sortID = _originalLength-1;
+		_sortID = _originalLength - 1;
 
 		var modLoaded:String = Mods.currentModDirectory;
 		Mods.currentModDirectory = null;
-		loadAchievementJson(Paths.mods('data/achievements.json'));
+		var path:String = "data/achievements.json";
+		loadAchievementJson(Paths.mods(path));
 		for (i => mod in Mods.parseList().enabled) {
 			Mods.currentModDirectory = mod;
-			loadAchievementJson(Paths.mods('$mod/data/achievements.json'));
+			loadAchievementJson(Paths.mods('$mod/$path'));
 		}
 		Mods.currentModDirectory = modLoaded;
 	}
@@ -223,7 +206,7 @@ class Achievements {
 					for (i in 0...retVal.length) {
 						var achieve:Dynamic = retVal[i];
 						if (achieve == null) {
-							var errorTitle = 'Mod name: ' + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
+							var errorTitle = "Mod name: " + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
 							var errorMsg = 'Achievement #${i+1} is invalid.';
 							#if windows
 							lime.app.Application.current.window.alert(errorMsg, errorTitle);
@@ -234,7 +217,7 @@ class Achievements {
 
 						var key:String = achieve.save;
 						if (key == null || key.trim().length < 1) {
-							var errorTitle = 'Error on Achievement: ' + (achieve.name != null ? achieve.name : achieve.save);
+							var errorTitle = "Error on Achievement: " + (achieve.name != null ? achieve.name : achieve.save);
 							var errorMsg = 'Missing valid "save" value.';
 							#if windows
 							lime.app.Application.current.window.alert(errorMsg, errorTitle);
@@ -247,8 +230,8 @@ class Achievements {
 						createAchievement(key, achieve, Mods.currentModDirectory);
 					}
 				}
-			} catch(e:Dynamic) {
-				var errorTitle = 'Mod name: ' + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
+			} catch (e:Dynamic) {
+				var errorTitle = "Mod name: " + Mods.currentModDirectory != null ? Mods.currentModDirectory : "None";
 				var errorMsg = 'Error loading achievements.json: $e';
 				#if windows
 				lime.app.Application.current.window.alert(errorMsg, errorTitle);
@@ -263,14 +246,14 @@ class Achievements {
 	#if LUA_ALLOWED
 	public static function addLuaCallbacks(lua:State) {
 		Lua_helper.add_callback(lua, "getAchievementScore", function(name:String):Float {
-			if(!achievements.exists(name)) {
+			if (!achievements.exists(name)) {
 				FunkinLua.luaTrace('getAchievementScore: Couldnt find achievement: $name', false, false, FlxColor.RED);
 				return -1;
 			}
 			return getScore(name);
 		});
 		Lua_helper.add_callback(lua, "setAchievementScore", function(name:String, ?value:Float = 0, ?saveIfNotUnlocked:Bool = true):Float {
-			if(!achievements.exists(name)) {
+			if (!achievements.exists(name)) {
 				FunkinLua.luaTrace('setAchievementScore: Couldnt find achievement: $name', false, false, FlxColor.RED);
 				return -1;
 			}

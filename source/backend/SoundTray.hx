@@ -27,8 +27,11 @@ class SoundTray extends flixel.system.ui.FlxSoundTray {
 		text.width = bg.width;
 		text.height = bg.height;
 		text.selectable = false;
-		var tf = new openfl.text.TextFormat(Paths.font('luckiest_guy.ttf'), 10, 0xFFFFFF);
+		
+		var fontName:String = openfl.utils.Assets.getFont(Paths.font("luckiest_guy.ttf")).name;
+		var tf = new openfl.text.TextFormat(fontName, 10, 0xFFFFFF);
 		tf.align = openfl.text.TextFormatAlign.CENTER;
+
 		text.defaultTextFormat = tf;
 		text.text = "VOLUME";
 		text.y = 16;

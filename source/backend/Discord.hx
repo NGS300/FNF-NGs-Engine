@@ -1,7 +1,6 @@
 package backend;
 
 #if DISCORD_ALLOWED
-import Sys.sleep;
 import sys.thread.Thread;
 import lime.app.Application;
 
@@ -73,15 +72,14 @@ class DiscordClient {
 						#end
 						Discord.RunCallbacks();
 					}
-					// Wait 1 second until the next loop...
-					Sys.sleep(1.0);
+					Sys.sleep(1.0); // Wait 1 second until the next loop...
 				}
 			});
 		}
 		isInitialized = true;
 	}
 
-	public static function changePresence(details:String = 'In the Menus', ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float, largeImageKey:String = 'icon') {
+	public static function changePresence(details:String = "In the Menus", ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float, largeImageKey:String = "icon") {
 		var startTimestamp:Float = 0;
 		if (hasStartTimestamp) startTimestamp = Date.now().getTime();
 		if (endTimestamp > 0) endTimestamp = startTimestamp + endTimestamp;
