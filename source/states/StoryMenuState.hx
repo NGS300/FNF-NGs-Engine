@@ -58,7 +58,7 @@ class StoryMenuState extends MusicBeatState {
         modeSelectorSprites = new Map<String, FlxSprite>();
         
         // this var is a wildcard across the entire class //
-        var path = "storymenu/";
+        var path:String = "storymenu/";
         
         #if DISCORD_ALLOWED
         // Updating Discord Rich Presence only if allowed

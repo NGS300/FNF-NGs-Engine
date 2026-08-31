@@ -9,7 +9,7 @@ import flixel.util.FlxColor;
 
 class StoryModeMenuShape {
     // só constrói a geometria -- não sabe nada sobre câmera ou sprite
-    public static function buildCut():FlxSprite {
+    public static function buildCut(nextPart:Bool = true):FlxSprite {
         var shape:Shape = new Shape();
         
         shape.graphics.beginFill(0xFF000000);
@@ -34,6 +34,9 @@ class StoryModeMenuShape {
         shape.graphics.lineTo(936, 92);
         shape.graphics.endFill();
         
+        if (!nextPart)
+            return toSprite(shape);
+            
         shape.graphics.beginFill(0xFF000000);
         shape.graphics.moveTo(916, FlxG.height);
         shape.graphics.lineTo(FlxG.width, FlxG.height);

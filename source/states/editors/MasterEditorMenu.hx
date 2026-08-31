@@ -11,6 +11,9 @@ class MasterEditorMenu extends MusicBeatState {
         'Character Editor',
         'Stage Editor',
         'Week Editor',
+        #if debug
+        'Old Week Editor',
+        #end
         'Menu Character Editor',
         'Dialogue Editor',
         'Dialogue Portrait Editor',
@@ -101,6 +104,10 @@ class MasterEditorMenu extends MusicBeatState {
                     LoadingState.loadAndSwitchState(new StageEditorState());
                 case 'Week Editor':
                     MusicBeatState.switchState(new NewWeekEditorState());
+                #if debug
+                case 'Old Week Editor':
+                    MusicBeatState.switchState(new WeekEditorState());
+                #end
                 case 'Menu Character Editor':
                     MusicBeatState.switchState(new MenuCharacterEditorState());
                 case 'Dialogue Editor':
