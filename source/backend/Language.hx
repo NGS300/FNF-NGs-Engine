@@ -1,7 +1,7 @@
 package backend;
 
 class Language {
-	public static var defaultLangName:String = 'English (US)'; //en-US
+	public static var defaultLangName:String = "English (US)"; //en-US
 	#if TRANSLATIONS_ALLOWED
 	private static var phrases:Map<String, String> = [];
 	#end
@@ -16,17 +16,14 @@ class Language {
 		var hasPhrases:Bool = false;
 		for (num => phrase in loadedText) {
 			phrase = phrase.trim();
-			if (num < 1 && !phrase.contains(':')) {
-				//First line ignores formatting and shit if the line doesn't have ":" because its language_name
+			if (num < 1 && !phrase.contains(":")) { //First line ignores formatting and shit if the line doesn't have ":" because its language_name
 				phrases.set('language_name', phrase.trim());
 				continue;
 			}
+			if (phrase.length < 4 || phrase.startsWith("//")) continue; 
 
-			if (phrase.length < 4 || phrase.startsWith('//')) continue; 
-
-			var n:Int = phrase.indexOf(':');
+			var n:Int = phrase.indexOf(":");
 			if (n < 0) continue;
-
 			var key:String = phrase.substr(0, n).trim().toLowerCase();
 
 			var value:String = phrase.substr(n);
@@ -37,12 +34,11 @@ class Language {
 			phrases.set(key, value.substring(n+1, value.lastIndexOf('"')).replace('\\n', '\n'));
 			hasPhrases = true;
 		}
-
 		if (!hasPhrases) ClientPrefs.data.language = ClientPrefs.defaultData.language;
 		
 		var alphaPath:String = getFileTranslation('images/alphabet');
 		if (alphaPath.startsWith('images/')) alphaPath = alphaPath.substr('images/'.length);
-		var pngPos:Int = alphaPath.indexOf('.png');
+		var pngPos:Int = alphaPath.indexOf(".png");
 		if (pngPos > -1) alphaPath = alphaPath.substring(0, pngPos);
 		AlphaCharacter.loadAlphabetData(alphaPath);
 		#else
@@ -58,7 +54,6 @@ class Language {
 		#else
 		var str:String = defaultPhrase;
 		#end
-
 		if (str == null)
 			str = key;
 		
@@ -80,7 +75,7 @@ class Language {
 	#if TRANSLATIONS_ALLOWED
 	inline static private function formatKey(key:String) {
 		final hideChars = ~/[~&\\\/;:<>#.,'"%?!]/g;
-		return hideChars.replace(key.replace(' ', '_'), '').toLowerCase().trim();
+		return hideChars.replace(key.replace(" ", "_"), "").toLowerCase().trim();
 	}
 	#end
 
@@ -89,6 +84,7 @@ class Language {
 		Lua_helper.add_callback(lua, "getTranslationPhrase", function(key:String, ?defaultPhrase:String, ?values:Array<Dynamic> = null) {
 			return getPhrase(key, defaultPhrase, values);
 		});
+
 		Lua_helper.add_callback(lua, "getFileTranslation", function(key:String) {
 			return getFileTranslation(key);
 		});

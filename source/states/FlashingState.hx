@@ -1,13 +1,12 @@
 package states;
 
 class FlashingState extends MusicBeatState {
-	public static var leftState:Bool = false;
-
 	var texts = new FlxTypedSpriteGroup<FlxText>();
 	var isBouce:Bool = false;
 	var isYes:Bool = true;
 	var selector:FlxText;
 
+	public static var leftState:Bool = false;
 	override function create() {
 		super.create();
 		add(new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK));
@@ -15,7 +14,7 @@ class FlashingState extends MusicBeatState {
 		texts.alpha = 0;
 		add(texts);
 
-		var warnText:FlxText = new FlxText(0, 0, FlxG.width,
+		var warnText = new FlxText(0, 0, FlxG.width,
 			"Hey, watch out!\n
 			This Mod contains some flashing lights!\n
 			Do you wish to disable them?");
@@ -53,6 +52,7 @@ class FlashingState extends MusicBeatState {
 			next = true;
 		else if (controls.UI_RIGHT_P)
 			next = false;
+
 		if (next != isYes) {
 			isYes = next;
 			FlxG.sound.play(Paths.sound("scrollMenu"), 0.7);
@@ -66,7 +66,6 @@ class FlashingState extends MusicBeatState {
 			FlxTransitionableState.skipNextTransOut = true;
 			if (!back) {
 				var i = isYes;
-				//ClientPrefs.data.flashingCheck = i;
 				ClientPrefs.data.flashing = !i;
 				ClientPrefs.saveSettings();
                 FlxG.sound.play(Paths.sound("confirmMenu"));

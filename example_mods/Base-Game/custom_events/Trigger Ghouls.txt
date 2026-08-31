@@ -1,0 +1,3 @@
+Stage: SchoolEvil
+Exclusive to SchoolEvil,
+SchoolEvil Trigger BG Ghouls.

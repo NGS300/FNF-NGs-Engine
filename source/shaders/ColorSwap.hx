@@ -3,31 +3,30 @@ package shaders;
 import flixel.system.FlxAssets.FlxShader;
 
 class ColorSwap {
-	public var shader(default, null):ColorSwapShader = new ColorSwapShader();
+	public var shader(default, null) = new ColorSwapShader();
 	public var hue(default, set):Float = 0;
 	public var saturation(default, set):Float = 0;
 	public var brightness(default, set):Float = 0;
 
-	private function set_hue(value:Float) {
+	function set_hue(value:Float) {
 		hue = value;
 		shader.uTime.value[0] = hue;
 		return hue;
 	}
 
-	private function set_saturation(value:Float) {
+	function set_saturation(value:Float) {
 		saturation = value;
 		shader.uTime.value[1] = saturation;
 		return saturation;
 	}
 
-	private function set_brightness(value:Float) {
+	function set_brightness(value:Float) {
 		brightness = value;
 		shader.uTime.value[2] = brightness;
 		return brightness;
 	}
 
-	public function new()
-	{
+	public function new() {
 		shader.uTime.value = [0, 0, 0];
 		shader.awesomeOutline.value = [false];
 	}
@@ -47,23 +46,16 @@ class ColorSwapShader extends FlxShader {
 		uniform bool hasTransform;
 		uniform bool hasColorTransform;
 
-		vec4 flixel_texture2D(sampler2D bitmap, vec2 coord)
-		{
+		vec4 flixel_texture2D(sampler2D bitmap, vec2 coord) {
 			vec4 color = texture2D(bitmap, coord);
 			if (!hasTransform)
-			{
 				return color;
-			}
 
 			if (color.a == 0.0)
-			{
 				return vec4(0.0, 0.0, 0.0, 0.0);
-			}
 
 			if (!hasColorTransform)
-			{
 				return color * openfl_Alphav;
-			}
 
 			color = vec4(color.rgb / color.a, color.a);
 
@@ -76,9 +68,8 @@ class ColorSwapShader extends FlxShader {
 			color = clamp(openfl_ColorOffsetv + (color * colorMultiplier), 0.0, 1.0);
 
 			if (color.a > 0.0)
-			{
 				return vec4(color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
-			}
+
 			return vec4(0.0, 0.0, 0.0, 0.0);
 		}
 
@@ -86,8 +77,7 @@ class ColorSwapShader extends FlxShader {
 		uniform bool awesomeOutline;
 
 		const float offset = 1.0 / 128.0;
-		vec3 normalizeColor(vec3 color)
-		{
+		vec3 normalizeColor(vec3 color) {
 			return vec3(
 				color[0] / 255.0,
 				color[1] / 255.0,
@@ -95,8 +85,7 @@ class ColorSwapShader extends FlxShader {
 			);
 		}
 
-		vec3 rgb2hsv(vec3 c)
-		{
+		vec3 rgb2hsv(vec3 c) {
 			vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 			vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
 			vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
@@ -106,15 +95,13 @@ class ColorSwapShader extends FlxShader {
 			return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 		}
 
-		vec3 hsv2rgb(vec3 c)
-		{
+		vec3 hsv2rgb(vec3 c) {
 			vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
 			vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
 			return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 		}
 
-		void main()
-		{
+		void main() {
 			vec4 color = flixel_texture2D(bitmap, openfl_TextureCoordv);
 
 			vec4 swagColor = vec4(rgb2hsv(vec3(color[0], color[1], color[2])), color[3]);
@@ -124,26 +111,20 @@ class ColorSwapShader extends FlxShader {
 			swagColor[1] = swagColor[1] + uTime[1];
 			swagColor[2] = swagColor[2] * (1.0 + uTime[2]);
 			
-			if(swagColor[1] < 0.0)
-			{
+			if (swagColor[1] < 0.0)
 				swagColor[1] = 0.0;
-			}
-			else if(swagColor[1] > 1.0)
-			{
+			else if (swagColor[1] > 1.0)
 				swagColor[1] = 1.0;
-			}
 
 			color = vec4(hsv2rgb(vec3(swagColor[0], swagColor[1], swagColor[2])), swagColor[3]);
 
-			if (awesomeOutline)
-			{
-				 // Outline bullshit?
-				vec2 size = vec2(3, 3);
+			if (awesomeOutline) {
+				vec2 size = vec2(3, 3); // Outline bullshit?
 
 				if (color.a <= 0.5) {
 					float w = size.x / openfl_TextureSize.x;
 					float h = size.y / openfl_TextureSize.y;
-					
+
 					if (flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x + w, openfl_TextureCoordv.y)).a != 0.
 					|| flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x - w, openfl_TextureCoordv.y)).a != 0.
 					|| flixel_texture2D(bitmap, vec2(openfl_TextureCoordv.x, openfl_TextureCoordv.y + h)).a != 0.
@@ -156,8 +137,7 @@ class ColorSwapShader extends FlxShader {
 			/* 
 			if (color.a > 0.5)
 				gl_FragColor = color;
-			else
-			{
+			else {
 				float a = flixel_texture2D(bitmap, vec2(openfl_TextureCoordv + offset, openfl_TextureCoordv.y)).a +
 						  flixel_texture2D(bitmap, vec2(openfl_TextureCoordv, openfl_TextureCoordv.y - offset)).a +
 						  flixel_texture2D(bitmap, vec2(openfl_TextureCoordv - offset, openfl_TextureCoordv.y)).a +
@@ -188,9 +168,8 @@ class ColorSwapShader extends FlxShader {
 		attribute vec4 colorMultiplier;
 		attribute vec4 colorOffset;
 		uniform bool hasColorTransform;
-		
-		void main(void)
-		{
+
+		void main(void) {
 			openfl_Alphav = openfl_Alpha;
 			openfl_TextureCoordv = openfl_TextureCoord;
 
@@ -202,15 +181,11 @@ class ColorSwapShader extends FlxShader {
 			gl_Position = openfl_Matrix * openfl_Position;
 
 			openfl_Alphav = openfl_Alpha * alpha;
-			if (hasColorTransform)
-			{
+			if (hasColorTransform) {
 				openfl_ColorOffsetv = colorOffset / 255.0;
 				openfl_ColorMultiplierv = colorMultiplier;
 			}
 		}')
 
-	public function new()
-	{
-		super();
-	}
+	public function new() { super(); }
 }

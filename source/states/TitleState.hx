@@ -20,7 +20,7 @@ class TitleState extends MusicBeatState {
     public static var initialized:Bool = false;
     public static var engineData = {
         name: "NGs Engine",
-        version: "0.0.3"
+        version: "0.0.4"
     }
     
     var credGroup:FlxGroup = new FlxGroup();
@@ -29,7 +29,7 @@ class TitleState extends MusicBeatState {
     var ngSpr:FlxSprite;
     
     var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
-    var titleTextAlphas:Array<Float> = [1, .64];
+    var titleTextAlphas:Array<Float> = [1, 0.64];
     var curWacky:Array<String> = [];
     
     override public function create():Void {
@@ -82,7 +82,7 @@ class TitleState extends MusicBeatState {
     function startIntro() {
         persistentUpdate = true;
         if (!initialized && FlxG.sound.music == null)
-            FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+            FlxG.sound.playMusic(Paths.music("freakyMenu"), 0);
         Conductor.bpm = 102;
         
         gradDown = FlxGradient.createGradientFlxSprite(1880, 256, [0xFFFFFFFF, 0x00FFFFFF], 3);
@@ -92,7 +92,7 @@ class TitleState extends MusicBeatState {
         gradDown.y = FlxG.height - gradDown.height;
         gradDown.y += 60;
         gradDown.flipY = true;
-        gradDown.alpha = .5;
+        gradDown.alpha = 0.5;
         add(gradDown);
         FlxTween.color(gradDown, 2, 0xFFff0000, 0xFF680000, {
             ease: FlxEase.quadInOut,
@@ -105,14 +105,14 @@ class TitleState extends MusicBeatState {
         gradUp.y -= 60;
         gradUp.screenCenter(X);
         gradUp.flipY = true;
-        gradUp.alpha = .3;
+        gradUp.alpha = 0.3;
         add(gradUp);
         FlxTween.color(gradUp, 2, 0xFF680000, 0xFFff0000, {
             ease: FlxEase.quadInOut,
             type: PINGPONG,
         });
         
-        var i = "titlemenu";
+        var i = "menus/title";
         logoSpr = new FlxSprite().loadGraphic(Paths.image('$i/logo'));
         logoSpr.scale.set(scale.start, scale.start);
         logoSpr.updateHitbox();
@@ -130,26 +130,22 @@ class TitleState extends MusicBeatState {
         });
         
         var animFrames:Array<FlxFrame> = [];
-        #if mobile
-        var isMobile = true;
-        #else
-        var isMobile = false;
-        #end
+        var isMobile = #if !mobile false #else true #end;
         titleText = new FlxSprite((isMobile ? 60 : 122) + (flixel.math.FlxPoint.get().x / 2), 590);
-        titleText.frames = Paths.getSparrowAtlas('$i/titleEnter' + (!isMobile ? '' : '_mobile'));
+        titleText.frames = Paths.getSparrowAtlas('$i/titleEnter' + (!isMobile ? "" : "_mobile"));
         @:privateAccess {
             titleText.animation.findByPrefix(animFrames, "ENTER IDLE");
             titleText.animation.findByPrefix(animFrames, "ENTER FREEZE");
         }
         if (newTitle = animFrames.length > 0) {
-            titleText.animation.addByPrefix('idle', "ENTER IDLE", 24);
-            titleText.animation.addByPrefix('press', ClientPrefs.data.flashing ? "ENTER PRESSED" : "ENTER FREEZE", 24);
+            titleText.animation.addByPrefix("idle", "ENTER IDLE", 24);
+            titleText.animation.addByPrefix("press", ClientPrefs.data.flashing ? "ENTER PRESSED" : "ENTER FREEZE", 24);
         }
         else {
-            titleText.animation.addByPrefix('idle', "Press Enter to Begin", 24);
-            titleText.animation.addByPrefix('press', "ENTER PRESSED", 24);
+            titleText.animation.addByPrefix("idle", "Press Enter to Begin", 24);
+            titleText.animation.addByPrefix("press", "ENTER PRESSED", 24);
         }
-        titleText.animation.play('idle');
+        titleText.animation.play("idle");
         titleText.updateHitbox();
         add(titleText);
         
@@ -158,28 +154,28 @@ class TitleState extends MusicBeatState {
         blackScreen.updateHitbox();
         credGroup.add(blackScreen);
         
-        if (FlxG.random.int(0, 100) < 10) {
-            ngSpr = new FlxSprite();
-            ngSpr.loadGraphic(Paths.image('$i/newgrounds_logo_animated'), true, 591, 591);
-            ngSpr.animation.add("idle", [0, 1], 8, true);
-            ngSpr.scale.set(scale.start, scale.start);
-            ngSpr.updateHitbox();
-            ngSpr.screenCenter();
-            ngSpr.y += 160;
-            ngSpr.antialiasing = ClientPrefs.data.antialiasing;
-            ngSpr.animation.play("idle", true);
-            ngSpr.visible = false;
-        }
-        else {
-            ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
-            ngSpr.visible = false;
-            scale.start = 0.76;
-            scale.bump = 0.80;
-            ngSpr.scale.set(scale.start, scale.start);
-            ngSpr.updateHitbox();
-            ngSpr.screenCenter(X);
-            ngSpr.antialiasing = ClientPrefs.data.antialiasing;
-        }
+        ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
+        ngSpr.visible = false;
+        ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+        ngSpr.updateHitbox();
+        ngSpr.screenCenter(X);
+        ngSpr.antialiasing = ClientPrefs.data.antialiasing;
+        
+        /*if (FlxG.random.int(0, 100) <= 10) {
+                ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('$i/newgrounds_logo'));
+                ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+                ngSpr.updateHitbox();
+                ngSpr.screenCenter(X);
+            } else {
+                ngSpr = new FlxSprite().loadGraphic(Paths.image('$i/newgrounds_logo_animated'), true, 591, 591);
+                ngSpr.animation.add("idle", [0, 1], 8, true);
+                ngSpr.scale.set(scale.start, scale.start);
+                ngSpr.updateHitbox();
+                ngSpr.screenCenter();
+                ngSpr.y += 160;
+        }*/
+        // ngSpr.visible = false;
+        // ngSpr.antialiasing = ClientPrefs.data.antialiasing;
         
         add(credGroup);
         add(ngSpr);
@@ -187,15 +183,16 @@ class TitleState extends MusicBeatState {
     }
     
     function getIntroTextShit():Array<Array<String>> {
+        var id = "introText";
         #if MODS_ALLOWED
-        var firstArray:Array<String> = Mods.mergeAllTextsNamed('data/introText.txt');
+        var firstArray:Array<String> = Mods.mergeAllTextsNamed('data/$id.txt');
         #else
-        var fullText:String = Assets.getText(Paths.txt('introText'));
-        var firstArray:Array<String> = fullText.split('\n');
+        var fullText:String = Assets.getText(Paths.txt(id));
+        var firstArray:Array<String> = fullText.split("\n");
         #end
         var swagGoodArray:Array<Array<String>> = [];
         for (i in firstArray)
-            swagGoodArray.push(i.split('--'));
+            swagGoodArray.push(i.split("--"));
         return swagGoodArray;
     }
     
@@ -209,7 +206,7 @@ class TitleState extends MusicBeatState {
             
         scale.target = FlxMath.lerp(scale.target, scale.start, 0.094);
         logoSpr.scale.set(scale.target, scale.target);
-        ngSpr.scale.set(scale.target, scale.target);
+        // ngSpr.scale.set(scale.target, scale.target);
         
         var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
         #if mobile
@@ -254,10 +251,10 @@ class TitleState extends MusicBeatState {
                     titleText.color = FlxColor.WHITE;
                     titleText.alpha = 1;
                     if (titleText != null)
-                        titleText.animation.play('press');
+                        titleText.animation.play("press");
                         
                     FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
-                    FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+                    FlxG.sound.play(Paths.sound("confirmMenu"), 0.7);
                     
                     transitioning = true;
                     FlxTween.tween(logoSpr, {x: logoSpr.x + 1000}, 2.8, {
@@ -270,7 +267,7 @@ class TitleState extends MusicBeatState {
                             });
                         },
                         onComplete: (_) -> {
-                            changeState(states.MainMenuState);
+                            MusicBeatState.switchState(new states.MainMenuState());
                             closedState = true;
                         }
                     });
@@ -297,7 +294,7 @@ class TitleState extends MusicBeatState {
     
     function createCoolText(textArray:Array<String>, ?offset:Float = 0) {
         for (i in 0...textArray.length) {
-            var money:Alphabet = new Alphabet(0, 0, textArray[i], true);
+            var money = new Alphabet(0, 0, textArray[i], true);
             money.screenCenter(X);
             money.y += (i * 60) + 200 + offset;
             if (credGroup != null && textGroup != null) {
@@ -309,7 +306,7 @@ class TitleState extends MusicBeatState {
     
     function addMoreText(text:String, ?offset:Float = 0) {
         if (textGroup != null && credGroup != null) {
-            var coolText:Alphabet = new Alphabet(0, 0, text, true);
+            var coolText = new Alphabet(0, 0, text, true);
             coolText.screenCenter(X);
             coolText.y += (textGroup.length * 60) + 200 + offset;
             credGroup.add(coolText);
@@ -331,24 +328,23 @@ class TitleState extends MusicBeatState {
     override function beatHit() {
         super.beatHit();
         scale.target = scale.bump;
-        
         if (!closedState) {
             sickBeats++;
             switch (sickBeats) {
                 case 1:
-                    FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+                    FlxG.sound.playMusic(Paths.music("freakyMenu"), 0);
                     FlxG.sound.music.fadeIn(4, 0, 0.7);
                 case 2:
-                    createCoolText(['NGs Engine by'], 40);
+                    createCoolText(["NGs Engine by"], 40);
                 case 4:
-                    addMoreText('NGS300', 40);
-                    addMoreText('CloudyNimbus', 40);
+                    addMoreText("NGS300", 40);
+                    addMoreText("CloudyNimbus", 40);
                 case 5:
                     deleteCoolText();
                 case 6:
-                    createCoolText(['Not associated', 'with'], -40);
+                    createCoolText(["Not associated", "with"], -40);
                 case 8:
-                    addMoreText('newgrounds', -40);
+                    addMoreText("newgrounds", -40);
                     ngSpr.visible = true;
                 case 9:
                     deleteCoolText();
@@ -360,11 +356,11 @@ class TitleState extends MusicBeatState {
                 case 13:
                     deleteCoolText();
                 case 14:
-                    addMoreText('Friday');
+                    addMoreText("Friday");
                 case 15:
-                    addMoreText('Night');
+                    addMoreText("Night");
                 case 16:
-                    addMoreText('Funkin');
+                    addMoreText("Funkin");
                 case 17:
                     skipIntro();
             }
@@ -374,12 +370,10 @@ class TitleState extends MusicBeatState {
     var skippedIntro:Bool = false;
     
     function skipIntro():Void {
-        scale.start = 0.34;
-        scale.bump = 0.365;
         if (!skippedIntro) {
             remove(ngSpr);
             remove(credGroup);
-            FlxG.camera.flash(FlxColor.WHITE, 2.5);
+            FlxG.camera.flash(FlxColor.WHITE, closedState ? 2.5 : 4);
         }
         skippedIntro = true;
     }

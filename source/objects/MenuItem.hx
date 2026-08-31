@@ -3,10 +3,9 @@ package objects;
 class MenuItem extends FlxSprite {
     public var targetY:Float = 0;
     
-    public function new(x:Float, y:Float, weekName:String = '', loadWeekGraphic:Bool = true) {
+    public function new(x:Float, y:Float, weekName:String = "") {
         super(x, y);
-        if (loadWeekGraphic)
-            loadGraphic(Paths.image('storymenu/' + weekName));
+        loadGraphic(Paths.image('menus/story/weeks/$weekName'));
         antialiasing = ClientPrefs.data.antialiasing;
         // trace('Test added: ' + WeekData.getWeekNumber(weekNum) + ' (' + weekNum + ')');
     }
@@ -26,7 +25,6 @@ class MenuItem extends FlxSprite {
     
     override function update(elapsed:Float) {
         super.update(elapsed);
-        
         if (isFlashing) {
             _flashingElapsed += elapsed;
             color = (Math.floor(_flashingElapsed * FlxG.updateFramerate * flashes_ps) % 2 == 0) ? _flashColor : FlxColor.WHITE;

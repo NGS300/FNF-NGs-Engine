@@ -110,14 +110,6 @@ class MusicBeatState extends FlxState {
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
 
-	public function changeState(?next:Class<FlxState>) {
-		if (next == null) {
-			FlxG.resetState();
-			return;
-		}
-		FlxG.switchState(() -> cast Type.createInstance(next, []));
-	}
-
 	public static function switchState(nextState:FlxState = null) {
 		if (nextState == null) nextState = FlxG.state;
 		if (nextState == FlxG.state) {
