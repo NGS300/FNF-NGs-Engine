@@ -93,7 +93,7 @@ class MainMenuState extends MusicBeatState {
             rightDownItem.x -= rightDownItem.width;
         }
 
-        var engineVer = new FlxText(2, FlxG.height - 22, 0, CoolUtil.engine.name + " v" + CoolUtil.engine.version, 16);
+        var engineVer = new FlxText(2, FlxG.height - 22, 0, '${CoolUtil.engine.name} v${CoolUtil.engine.version}', 16);
         engineVer.scrollFactor.set();
         engineVer.setFormat(Paths.font("fredoka_One.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
         add(engineVer);
@@ -123,7 +123,7 @@ class MainMenuState extends MusicBeatState {
 
     function createMenuItem(name:String, x:Float, y:Float):FlxSprite {
         var menuItem = new FlxSprite(x, y);
-        menuItem.frames = Paths.getSparrowAtlas('menus/mainmenu/menu_$name');
+        menuItem.frames = Paths.getSparrowAtlas('menus/main/menu_$name');
         menuItem.animation.addByPrefix("idle", '$name idle', 24, true);
         menuItem.animation.addByPrefix("selected", '$name selected', 24, true);
         menuItem.animation.play("idle");
@@ -263,7 +263,7 @@ class MainMenuState extends MusicBeatState {
                             if (PlayState.SONG != null) {
                                 PlayState.SONG.arrowSkin = null;
                                 PlayState.SONG.splashSkin = null;
-                                PlayState.stageUI = 'normal';
+                                PlayState.stageUI = "normal";
                             }
                         case "donate":
                             CoolUtil.browserLoad("https://ninja-muffin24.itch.io/funkin");
@@ -315,11 +315,20 @@ class MainMenuState extends MusicBeatState {
         selectedItem.centerOffsets();
 
         if (curColumn == LEFT) {
-            var moreX:Float;
+            var lang = ClientPrefs.data.language.toLowerCase();
+            var moreX:Float = 0;
             switch (optionShit[curSelected].name) {
+                case "story_mode":
+                    switch (lang) {
+                        case "pt-br": moreX = 28;
+                    }
                 case "freeplay": moreX = 16;
                 case "mods": moreX = 68;
-                case "credits": moreX = 2;
+                case "credits":
+                    switch (lang) {
+                        case "pt-br": moreX = 25;
+                        default: moreX = 2;
+                    }
                 default: moreX = 0;
             }
             selectedItem.x = (FlxG.width / 2) - (SELECTED_X + moreX);
